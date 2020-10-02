@@ -5,10 +5,8 @@ const CardGame = require("./CardGame");
  * @param id {string}
  * @description Class representing a Hearts card game
  */
-class Pinochle extends CardGame {
+export class Pinochle extends CardGame {
   constructor(id: string) {
     super(id);
   }
 }
-
-export default Pinochle;
