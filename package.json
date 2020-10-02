@@ -1,17 +1,25 @@
 {
-  "name": "card-games",
-  "version": "1.0.0",
-  "description": "Hearts, Pinnochle and other games",
+  "name": "ts-card-games",
+  "version": "0.0.1",
+  "description": "Hearts, Pinnochle and other games in typescript",
   "module": "dist/index.js",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "files": [
-    "dist"
+    "lib/**/*"
   ],
   "scripts": {
     "test": "jest --config jestconfig.json",
     "build": "tsc"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andreasmwenzel/ts-card-games.git"
+  },
+  "bugs": {
+    "url": "https://github.com/andreasmwenzel/ts-card-games/issues"
+  },
+  "homepage": "https://github.com/andreasmwenzel/ts-card-games#readme",
   "author": "Andreas Wenzel",
   "license": "ISC",
   "dependencies": {
