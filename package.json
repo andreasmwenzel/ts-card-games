@@ -9,8 +9,8 @@
     "lib/**/*"
   ],
   "scripts": {
-    "test": "jest --config jestconfig.json",
-    "build": "tsc",
+    "test": "jest --config jestconfig.json --verbose",
+    "build": "rm -rf lib/ && tsc",
     "prepare": "npm run build",
     "prepublishOnly": "npm test",
     "version": "git add -A src",
@@ -27,7 +27,7 @@
   "author": "Andreas Wenzel",
   "license": "ISC",
   "dependencies": {
-    "cards": "^1.0.3"
+    "ts-typed-events": "^2.0.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.14",
