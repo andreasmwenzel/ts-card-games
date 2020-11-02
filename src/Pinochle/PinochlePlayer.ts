@@ -1,11 +1,13 @@
 import { Card } from "../cards";
-import { Player } from "../Player";
+import {Player} from "../Player";
+
+export class PinochlePlayer extends Player {
 
 
-export class HeartsPlayer extends Player {
-  
 
   constructor(name: string, id: string) {
     super(name, id);
   }
+
+  
 }

@@ -26,9 +26,7 @@
   "homepage": "https://github.com/andreasmwenzel/ts-card-games#readme",
   "author": "Andreas Wenzel",
   "license": "ISC",
-  "dependencies": {
-    "ts-typed-events": "^2.0.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/jest": "^26.0.14",
     "ts-jest": "^26.4.1",

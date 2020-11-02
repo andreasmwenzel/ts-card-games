@@ -3,5 +3,5 @@
 //   Hearts,
 // };
 
-export * from "./Hearts/Hearts";
+export * from "./Hearts";
 export * from "./Pinochle";
