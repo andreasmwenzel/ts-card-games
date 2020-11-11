@@ -1,5 +1,6 @@
 
 import {CardGame} from "./CardGame"
+import { Rank, Suit, Card, SuitValues, RankValues } from "./cards"
 
 // export declare interface Player {
 //   on(event: 'hello', listener: (name: string) => void): this;
@@ -20,6 +21,8 @@ export abstract class Player {
   private _isReady: boolean;
   get isReady(){return this._isReady}
 
+  public suitValues:SuitValues=defaultSuitValue;
+  
 
   constructor(name: string, id: string) {
     this.name = name;
@@ -63,4 +66,11 @@ export abstract class Player {
     }
     this._position = position;
   }
+}
+
+let defaultSuitValue:SuitValues = {
+  clubs:0,
+  diamonds:1,
+  spades:2,
+  hearts:3
 }

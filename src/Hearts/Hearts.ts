@@ -1,5 +1,6 @@
 import { CardGame } from "../CardGame";
-import { Card, Deck, StandardDeck } from "../cards";
+import { Card, Deck, StandardDeck, RankValues, defaultRankValue } from "../cards";
+import { Player } from "../Player";
 import { HeartsPlayer } from "./HeartsPlayer";
 
 enum HeartsGamePhase {
@@ -23,6 +24,7 @@ type HeartsRules = {
 export class Hearts extends CardGame {
   private deck: Deck;
   protected playerCount: number = 4;
+  public readonly players: HeartsPlayer[] = [];
   private _rules:HeartsRules = {
     players : this.playerCount,
     queenBreaksHearts : false
@@ -30,6 +32,8 @@ export class Hearts extends CardGame {
   public get rules(){return this._rules};
   private gamePhase: HeartsGamePhase;
   private passDirection : HeartsPassDirection;
+
+  public rankValues:RankValues = defaultRankValue;
   
   public get gameInfo():any{
     return [this._gameState, this.gamePhase, this.passDirection]
@@ -43,7 +47,6 @@ export class Hearts extends CardGame {
   }
 
   protected startGame(): void{
-    
     this.startNewRound(HeartsPassDirection.LEFT);
   }
 
@@ -59,9 +62,12 @@ export class Hearts extends CardGame {
     //deal the deck
     this.deck.shuffle();
 
-    //shuffle the deck
-
-    //deal out the cards
+    let dealTo = 0;
+    while(this.deck.drawPile.length){
+      let p = this.players[dealTo]
+      p.receiveCard(this.deck.draw()[0]);
+      dealTo = (dealTo + 1) % this.playerCount;
+    }
 
     //set phase to passing
     if(this.passDirection === HeartsPassDirection.KEEP){
@@ -81,10 +87,18 @@ export class Hearts extends CardGame {
     this.gamePhase == HeartsGamePhase.PLAY;
     //find the 2 of clubs
     
-    
   }
 }
 
+
+function findTwoOfClubs(players: HeartsPlayer[]):Player{
+  for(let player of players){
+    if(player.hasTwoOfClubs()){
+      return player;
+    }
+  }
+  throw new Error("Two of Clubs: No player had the two of clubs");
+}
 //start
 //shuffle
 //deal
@@ -101,3 +115,5 @@ export class Hearts extends CardGame {
 //game over if any player is over 100
 
 //start next round
+
+

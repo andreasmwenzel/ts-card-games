@@ -1,3 +1,4 @@
+import { RankValues } from "./cards";
 import { Player } from "./Player";
 
 export enum GameState {
@@ -9,12 +10,13 @@ export enum GameState {
 
 export abstract class CardGame {
   public readonly id: string;
-  public readonly players: Player[] = [];
+  public readonly abstract players: Player[] = [];
   
   protected _gameState: GameState;
   public get gameState(): GameState {return this._gameState;}
   
   protected abstract playerCount: number;
+  public abstract rankValues: RankValues;
   
   constructor(id: string) {
     this.id = id;
