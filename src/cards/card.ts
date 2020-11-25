@@ -26,13 +26,15 @@ export class Card {
   }
 }
 
-export function compareCards(a:Card,b:Card, rankValue:RankValues, suitValue:any, trump:Suit|null):number {
+export function compareCards(a:Card,b:Card, rankValue:RankValues, suitValue:any):number {
   if(a.suit == b.suit){
     return rankValue[a.rank] - rankValue[b.rank];
   }else{
-     if(a.suit == trump){ return 1}
-     if(b.suit == trump){ return -1}
-     return suitValue[a.suit] - suitValue[b.suit];
+    if(suitValue[a.suit] == suitValue[b.suit]){
+      return rankValue[a.rank] - rankValue[b.rank]
+    }else{
+      return suitValue[a.suit] - suitValue[b.suit];
+    }
   }
 }
 
@@ -52,21 +54,8 @@ export interface RankValues{
   "A":number,
 }
 
-export let defaultRankValue:RankValues = {
-  "2":2,
-  "3":3,
-  "4":4,
-  "5":5,
-  "6":6,
-  "7":7,
-  "8":8,
-  "9":9,
-  "10":3,
-  "J":11,
-  "Q":12,
-  "K":13,
-  "A":14,
-}
+
+
 
 export interface SuitValues{
   clubs:number, 

@@ -10,3 +10,5 @@ describe("new card", () => {
     expect(aceOfSpades).toHaveProperty("suit", "spades");
   });
 });
+
+//TODO: make card compare tests

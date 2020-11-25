@@ -1,2 +1,2 @@
-export { StandardDeck } from "./standard";
-export { PinochleDeck } from "./pinochle";
+export { StandardDeck, defaultRankValue } from "./standard";
+export { PinochleDeck, pinochleRankValues } from "./pinochle";

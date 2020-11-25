@@ -1,3 +1,4 @@
-export { Card, Rank, Suit, RankValues, SuitValues, compareCards, defaultRankValue } from "./card";
+export { Card, Rank, Suit, RankValues, SuitValues, compareCards,  } from "./card";
 export { Deck } from "./deck";
-export { StandardDeck, PinochleDeck } from "./decks";
+export { StandardDeck, defaultRankValue, PinochleDeck, pinochleRankValues } from "./decks";
+export {Trick} from "./trick"

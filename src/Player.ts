@@ -12,7 +12,7 @@ export abstract class Player {
   public readonly name: string;
   public readonly id: string;
 
-  private _game?: CardGame;
+  protected abstract _game?: CardGame;
   public get game(){return this._game}
 
   private _position: number = -1;

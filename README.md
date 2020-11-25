@@ -41,7 +41,7 @@ game.startGame();
 
 ### Todo
 
-Finish building out game logic for Hearts and Pinnochle
+Finish building out game logic for Hearts and Pinochle
 
 ```
 

@@ -1,5 +1,5 @@
 import { Deck } from "../deck";
-import { Card, Rank, Suit } from "../card";
+import { Card, Rank, Suit, RankValues } from "../card";
 
 /**
  * @class PinochelDeck
@@ -39,3 +39,19 @@ const generateDeck = () => {
 
   return cards;
 };
+
+export let defaultRankValue:RankValues = {
+  "2":2,
+  "3":3,
+  "4":4,
+  "5":5,
+  "6":6,
+  "7":7,
+  "8":8,
+  "9":9,
+  "10":3,
+  "J":11,
+  "Q":12,
+  "K":13,
+  "A":14,
+}

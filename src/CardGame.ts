@@ -6,11 +6,12 @@ export enum GameState {
   WAITING_FOR_START,
   ACTIVE,
   PAUSED,
+  FINISHED
 }
 
 export abstract class CardGame {
   public readonly id: string;
-  public readonly abstract players: Player[] = [];
+  public readonly abstract players: Player[];
   
   protected _gameState: GameState;
   public get gameState(): GameState {return this._gameState;}
