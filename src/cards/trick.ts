@@ -3,7 +3,7 @@ import{ Card, compareCards, Suit, SuitValues, RankValues } from "./card"
 
 export class Trick{
   private leadSuit:Suit = "clubs";
-  public readonly cards:Card[] = [];
+  public cards:Card[] = [];
   private rankValues;
   private suitValues:SuitValues= {
     "clubs" : 1,

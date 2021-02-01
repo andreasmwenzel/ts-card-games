@@ -26,7 +26,6 @@ export class Deck {
   constructor(cards: Card[] = []) {
     for (let card of cards) {
       this.cards.push(card);
-      card.deck = this;
     }
   }
 

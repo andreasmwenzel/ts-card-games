@@ -1,11 +1,7 @@
 
-import {CardGame} from "./CardGame"
-import { Rank, Suit, Card, SuitValues, RankValues } from "./cards"
+import { CardGame } from "./CardGame"
+import { SuitValues, Card } from "./cards"
 
-// export declare interface Player {
-//   on(event: 'hello', listener: (name: string) => void): this;
-//   on(event: string, listener: Function): this;
-// }
 
 export abstract class Player {
 
@@ -13,58 +9,45 @@ export abstract class Player {
   public readonly id: string;
 
   protected abstract _game?: CardGame;
-  public get game(){return this._game}
-
-  private _position: number = -1;
-  get position(){return this._position}
-
-  private _isReady: boolean;
-  get isReady(){return this._isReady}
-
   public suitValues:SuitValues=defaultSuitValue;
-  
 
+  get position(){return this._game?.playerPosition(this)}
+  get hand():ReadonlyArray<Card>{
+    const hand = this._game?.playerHand(this)
+    return hand ? hand : [];
+  }
+  get ready():boolean{
+    const isReady = this._game?.isPlayerReady(this)
+    return isReady ? isReady : false;
+  }
+
+  set ready(ready:boolean){
+    this._game?.playerReady(this, ready);
+  }
+
+  get game():string{
+    return this._game?.id ? this._game.id : "no game";
+  }
   constructor(name: string, id: string) {
     this.name = name;
     this.id = id;
-    this._isReady = false;
   }
-  leaveGame() {
+
+  public leaveGame() {
     this._game?.playerLeave(this);
     this._game = undefined;
   }
-  public ready(ready:boolean = true){
-    if(!this._game){
-      throw new Error(`Ready Error: Player ${this.name} is not in a game.`)
-    }
-    this._game.playerReady(this, ready)
-    this._isReady = ready;
-  }
+
   public joinGame(game:CardGame, position:number = -1){
-    try{
-      this._position = game.joinGame(this, position);
-      this._game = game;
-    }catch (e){
-      throw(e);
-    }
-    
+    game.addPlayer(this, position);
+    this._game = game;
   }
 
   public movePosition(position:number, tradePositions: boolean = false){
     if(this._game === undefined){
       throw new Error(`Move Position Error: Player ${this.name} is not assigned to a game`)
     }
-    const prevPosition = this._position;
-    try{
-      if(tradePositions){
-        this._position = -1;
-      }
-      this._game.movePosition(this, position, tradePositions, prevPosition);
-    } catch(e){
-      this._position = prevPosition;
-      throw(e);
-    }
-    this._position = position;
+    this._game?.movePosition(this, position, tradePositions);
   }
 }
 

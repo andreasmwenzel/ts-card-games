@@ -1,8 +1,8 @@
 //"use strict";
-import { HeartsPlayer } from "../index"
-import { Hearts } from "../index";
-import {GameState} from "../CardGame"
-import { Player } from "../Player";
+import { HeartsPlayer } from "../../index"
+import { Hearts } from "../../index";
+import {GameState} from "../../CardGame"
+import { Player } from "../../Player";
 
 describe("Setting Up a game", ()=>{
   const game = new Hearts("Hearts1");
@@ -19,16 +19,11 @@ describe("Setting Up a game", ()=>{
   const p4 = new HeartsPlayer("julie", "4")
 
   test("joining and leaving game", ()=>{
-    expect(p1.name).toEqual("joe");
-    expect(p1.id).toEqual("1");
-    expect(p1.isReady).toEqual(false);
-    expect(p1.game).toBe(undefined);
-
+    
     p1.joinGame(game,1);
     expect(game.players).toHaveLength(1);
     expect(game.players).toContain(p1);
     expect(p1.position).toEqual(1);
-    expect(p1.game?.id).toBe("Hearts1");
     // expect(game.players[0]).toEqual(p1.name);
 
     p2.joinGame(game,2);

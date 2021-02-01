@@ -17,12 +17,15 @@ export type Rank =
   | "A";
 
 export class Card {
-  public suit: Suit;
-  public rank: Rank;
-  public deck?: Deck | null;
-  constructor(suit: Suit, rank: Rank) {
+  public readonly suit: Suit;
+  public readonly rank: Rank;
+  public readonly deck?: Deck | null;
+  public readonly description:string
+  constructor(suit: Suit, rank: Rank, deck?:Deck) {
     this.suit = suit;
     this.rank = rank;
+    this.description =`${this.rank} of ${this.suit}`;
+    this.deck=deck;
   }
 }
 

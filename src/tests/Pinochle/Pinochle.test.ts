@@ -1,6 +1,6 @@
 //"use strict";
 
-import { Pinochle } from "../index";
+import { Pinochle } from "../../index";
 
 const game = new Pinochle("Pinochle1");
 

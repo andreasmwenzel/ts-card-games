@@ -33,7 +33,7 @@ const generateDeck = () => {
 
   for (let suit of suits) {
     for (let rank of ranks) {
-      cards.push(new Card(suit, rank));
+      cards.push(new Card(suit, rank, this));
     }
   }
 
