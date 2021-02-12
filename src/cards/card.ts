@@ -29,7 +29,7 @@ export class Card {
   }
 }
 
-export function compareCards(a:Card,b:Card, rankValue:RankValues, suitValue:any):number {
+export function compareCards(a:Card,b:Card, rankValue:RankValues, suitValue:SuitValues):number {
   if(a.suit == b.suit){
     return rankValue[a.rank] - rankValue[b.rank];
   }else{

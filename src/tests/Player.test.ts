@@ -15,7 +15,7 @@ describe("Setting Up a game", ()=>{
     expect(p1.ready).toEqual(false);
     expect(p1.hand).toEqual([]);
   })
-
+/*
   const p2 = new HeartsPlayer("jim", "2");
   const p3 = new HeartsPlayer("jessica", "3");
   const p4 = new HeartsPlayer("julie", "4")
@@ -91,5 +91,5 @@ describe("Setting Up a game", ()=>{
   test("game starts", ()=>{
 
   })
-
+*/
 })
