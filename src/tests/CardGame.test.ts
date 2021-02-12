@@ -282,66 +282,59 @@ describe("Game is full but not started", ()=>{
   })
 })  
 describe("Active game", ()=>{
-  test("game starts", ()=>{
-    //last player readys us
-    game.playerReady(p3, true);
-    expect(game.gameState).toBe(GameState.ACTIVE);
+  test("game info", ()=>{
+    expect(game).toHaveProperty("id", "Hearts1");
+    expect(game.maxPlayers).toEqual(4);
+    expect(game.gameState).toEqual(GameState.ACTIVE)
+    expect(game.rankValues).toEqual(defaultRankValue)
+  })
   
-    //players get sorted and ready flags reset
-    expectedPlayers.sort((a,b)=>a.position>b.position ? 1: -1);
-    for(let p of playersInfo){
-      p.isReady = false; 
-    }
-      
-    expect(game.players).toEqual(expectedPlayers);
-  
+  test("add player", ()=>{
     expect(()=>{
-      game.addPlayer(p0);
+      let p5 = new HeartsPlayer("june", "5");
+      game.addPlayer(p5)
     }).toThrow(/Game is full/)
+  })
   
+  test("move positions", ()=>{
     expect(()=>{
-      game.movePosition(p0, 1);
+      game.movePosition(p1, 1)
     }).toThrow(/Game has started/)
-  
-    //ready check during an active game throws error
-    expect(()=>{
-      game.playerReady(p0, true)
-    }).toThrow(/Game is active/)
   })
-  
-}
-/*
-describe("During an active game",()=>{
-  
-  test("players leave after game start", ()=>{
-    game.removePlayer(p0);
+
+  test("player leaves", ()=>{
+    game.removePlayer(p2);
+    p2Info.leftTable = true;
     expect(game.gameState).toEqual(GameState.PLAYER_MISSING);
-    
-    //player does not get removed after game starts, only leftTable flag is set to true
-    p0Info.leftTable=true; //p1 is in table position 3
     expect(game.players).toEqual(expectedPlayers);
-    
+  })
+})
+
+
+describe("when a player has left", ()=>{
+  test("game info", ()=>{
+    expect(game).toHaveProperty("id", "Hearts1");
+    expect(game.maxPlayers).toEqual(4);
+    expect(game.gameState).toEqual(GameState.PLAYER_MISSING)
+    expect(game.rankValues).toEqual(defaultRankValue)
+  })
+
+  test("player who left readies", ()=>{
     expect(()=>{
-      game.playerReady(p0, true)
+      game.playerReady(p2, true);
     }).toThrow(/Player has left the table/)
-
-    game.playerReady(p1, true);
-    p1Info.isReady = true; //p2 is in table position 2
-    expect(game.players).toEqual(expectedPlayers);
   })
 })
+/*
 
-describe("Paused gamestate", ()=>{
-  test("players rejoing game", ()=>{
-
-  })
-
-  test("game restarts from paused state", ()=>{
-
-  })
-
-  test("all players leave", ()=>{
-
+describe("after players rejoin", ()=>{
+  test("game info", ()=>{
+    expect(game).toHaveProperty("id", "Hearts1");
+    expect(game.maxPlayers).toEqual(4);
+    expect(game.gameState).toEqual(GameState.WAITING_FOR_RESTART)
+    expect(game.rankValues).toEqual(defaultRankValue)
   })
 })
-*/
+  */
+
+
