@@ -180,7 +180,6 @@ export class Hearts extends CardGame {
           }
         }
         if(endGame){
-          console.log("game over");
           this._gameState=GameState.FINISHED;
         }
         else{
@@ -218,18 +217,16 @@ export class Hearts extends CardGame {
 
     let dealTo = (this.dealer + 1 ) % this.playerCount;
     while(this.deck.drawPile.length){
-      let card = this.deck.draw()[0];
       let p = this.playerData[dealTo]
-
-      this.addCardToPlayer(p, card)
-      p.hand.push(card);
-      p.hand.sort((a:Card, b:Card):number=>{return compareCards(a, b, this.rankValues , p.player.suitValues)})
-
-      this.startingHandByPlayer.set(p.player, p.hand);
+      this.addCardsToPlayer(p, this.deck.draw())
       
       dealTo = (dealTo + 1) % this.playerCount;
     }
     
+    for(const p of this.playerData){
+      p.hand.sort((a:Card, b:Card):number=>{return compareCards(a, b, this.rankValues , p.player.suitValues)})
+      this.startingHandByPlayer.set(p.player, p.hand);
+    }
 
     //set flag for playing 2 of clubs and 
     this.firstTurn = true;
