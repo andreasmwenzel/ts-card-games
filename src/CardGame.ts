@@ -71,11 +71,28 @@ export abstract class CardGame {
   }
 
   public addPlayer(player: Player, position:number=-1):number {
+    if(this._gameState == GameState.FINISHED){
+      throw new Error("Join Error: Game has finished");
+    }
     if (!(this._gameState == GameState.WAITING_FOR_PLAYERS || this._gameState == GameState.PLAYER_MISSING)) {
       throw new Error("Join Error: Game is full");
     }
     if( !Number.isInteger(position) || position >= this.playerCount || position < -1){
       throw new Error(`Join Error: Table has integer positions 0 through ${this.playerCount-1} or use -1 to find open seat`)
+    }
+    if(this.gameState == GameState.PLAYER_MISSING){
+      let p:PlayerData;
+      try{
+        p = this.findPlayerData(this.playerData, player)
+      }
+      catch{
+        throw new Error("Join Error: Game is full");
+      }
+      p.leftTable = false;
+      if(this.allPlayersRejoined()){
+        this._gameState = GameState.WAITING_FOR_RESTART
+      }
+      return p.position;
     }
     
     let pos:number = position;
@@ -174,12 +191,18 @@ export abstract class CardGame {
   }
 
   public removePlayer(player:Player):number{
-    const leavingPlayerData = this.findPlayerData(this.playerData, player);
-    
     switch (this._gameState){
+      case GameState.WAITING_FOR_RESTART:
       case GameState.ACTIVE:{
         this._gameState = GameState.PLAYER_MISSING;
+      }
+      case GameState.PLAYER_MISSING:{
+        const leavingPlayerData = this.findPlayerData(this.playerData, player);
         leavingPlayerData.leftTable = true;
+        leavingPlayerData.isReady = false;
+        if(this.allPlayersLeft()){
+          this._gameState = GameState.FINISHED;
+        }
         break;
       }
       case GameState.WAITING_FOR_START:
@@ -202,7 +225,24 @@ export abstract class CardGame {
 
   private allPlayersReady() : boolean{
     for(let p of this.playerData){
-      if(p.isReady != true){
+      if(!p.isReady){
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private allPlayersRejoined(){
+    for(let p of this.playerData){
+      if(p.leftTable){
+        return false;
+      }
+    }
+    return true;
+  }
+  private allPlayersLeft(){
+    for(let p of this.playerData){
+      if(!p.leftTable){
         return false;
       }
     }

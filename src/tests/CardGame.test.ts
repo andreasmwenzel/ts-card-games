@@ -302,6 +302,16 @@ describe("Active game", ()=>{
     }).toThrow(/Game has started/)
   })
 
+  test("player functions", ()=>{
+    expect(game.isPlayerReady(p1)).toEqual(p1Info.isReady);
+  })
+
+  test("player ready while active", ()=>{
+    expect(()=>{
+      game.playerReady(p1, true)
+    }).toThrow(/Game is active/)
+  })
+
   test("player leaves", ()=>{
     game.removePlayer(p2);
     p2Info.leftTable = true;
@@ -319,13 +329,55 @@ describe("when a player has left", ()=>{
     expect(game.rankValues).toEqual(defaultRankValue)
   })
 
+  test("a player not at table tries to join", ()=>{
+    expect(()=>{
+      let p5 = new HeartsPlayer("june", "5");
+      game.addPlayer(p5)
+    }).toThrow(/Game is full/)
+  })
+
+  test("move positions", ()=>{
+    expect(()=>{
+      game.movePosition(p1, 1)
+    }).toThrow(/Game has started/)
+  })
+
+  test("players ready", ()=>{
+    game.playerReady(p1, true);
+    p1Info.isReady=true;
+    game.playerReady(p3, true);
+    p3Info.isReady = true;
+
+    expect(game.players).toEqual(expectedPlayers);
+  })
+
   test("player who left readies", ()=>{
     expect(()=>{
       game.playerReady(p2, true);
     }).toThrow(/Player has left the table/)
   })
+
+  test("player functions", ()=>{
+    expect(game.isPlayerReady(p1)).toEqual(p1Info.isReady);
+  })
+
+  test("another player leaves", ()=>{
+    game.removePlayer(p1);
+    p1Info.leftTable=true;
+    p1Info.isReady=false;
+    expect(game.players).toEqual(expectedPlayers);
+  })
+
+  test("players rejoins", ()=>{
+    game.addPlayer(p1);
+    p1Info.leftTable=false;
+    game.addPlayer(p2);
+    p2Info.leftTable=false;
+    expect(game.players).toEqual(expectedPlayers);
+    expect(game.gameState).toEqual(GameState.WAITING_FOR_RESTART);
+  })
 })
-/*
+
 
 describe("after players rejoin", ()=>{
   test("game info", ()=>{
@@ -333,8 +385,47 @@ describe("after players rejoin", ()=>{
     expect(game.maxPlayers).toEqual(4);
     expect(game.gameState).toEqual(GameState.WAITING_FOR_RESTART)
     expect(game.rankValues).toEqual(defaultRankValue)
+    console.log(expectedPlayers);
+  })
+
+  test("add player", ()=>{
+    let p5 = new HeartsPlayer("june", "5");
+    expect(()=>{
+      game.addPlayer(p5);
+    }).toThrow(/Join Error: Game is full/);
+  })
+
+  test("all players ready again", ()=>{
+    game.playerReady(p0, true);
+    p0Info.isReady = true;
+    game.playerReady(p1, true);
+    p1Info.isReady = true;
+    game.playerReady(p2, true);
+    p2Info.isReady = true;
+
+    expect(game.gameState).toEqual(GameState.ACTIVE);
   })
 })
-  */
+
+describe("all players leave", ()=>{
+  test("all players leave", ()=>{
+    game.removePlayer(p0);
+    game.removePlayer(p1);
+    game.removePlayer(p2);
+    game.removePlayer(p3);
+    expect(game.gameState).toEqual(GameState.FINISHED);
+  })
+  test("player joing in finished game", ()=>{
+    expect(()=>{
+      game.addPlayer(p1);
+    }).toThrow(/Game has finished/)
+  })
+  test("player ready in finished game", ()=>{
+    expect(()=>{
+      game.playerReady(p1, true);
+    }).toThrow(/Game has finished/)
+  })
+})
+
 
 
