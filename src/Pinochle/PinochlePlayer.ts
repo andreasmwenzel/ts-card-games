@@ -1,4 +1,4 @@
-import { Card } from "../cards";
+import { Card } from "ts-cards";
 import {Player} from "../Player";
 import { Pinochle } from "./Pinochle";
 

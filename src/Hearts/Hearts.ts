@@ -1,5 +1,5 @@
 import { CardGame, GameState, PlayerData } from "../CardGame";
-import { Card, Deck, StandardDeck, RankValues, defaultRankValue , Trick, compareCards} from "../cards";
+import { Card, Deck, StandardDeck, Trick, standardCardCompare, two, clubs, queen, spades, hearts} from "ts-cards";
 import { Player } from "../Player";
 import { HeartsPlayer } from "./HeartsPlayer";
 
@@ -64,7 +64,6 @@ export class Hearts extends CardGame {
   private startingHandByPlayer:Map<Player, Card[]>;
   private cardsPassedByPlayer:Map<Player, Card[]>
   private currentTrick:Trick|null = null;
-  public rankValues:RankValues = defaultRankValue;
 
   public get gameInfo():any{
     return [this._gameState, this.gamePhase, this.passDirection]
@@ -103,16 +102,16 @@ export class Hearts extends CardGame {
     if(this.currentPlayer == this.playerToLead){
       if(this.firstTurn){
         //first card played every round must be the two of clubs `
-        if(! (card.suit=="clubs" && card.rank=="2" )){
+        if(! (card.suit==clubs && card.rank==two )){
           throw new Error("Playing Error: first card must be a two of clubs");
         }
         this.firstTurn = false;
       }
-      if(!this.heartsBroken && card.suit=="hearts" && !player.hasOnlyHearts()){
+      if(!this.heartsBroken && card.suit==hearts&& !player.hasOnlyHearts()){
         //can't play hearts unless player has no other cards
         throw new Error("Playing Error: Hearts has not been Broken")
       }
-      this.currentTrick = new Trick(card, this.rankValues)
+      this.currentTrick = new Trick(card, standardCardCompare)
     } else{
       //check if player has any of leading suit
       if(this.currentTrick){
@@ -128,10 +127,10 @@ export class Hearts extends CardGame {
     this.playedCards.set(card, player);
     this.removeCardFromPlayer(this.playerData[this.currentPlayer], card);
 
-    if(card.suit == "hearts"){
+    if(card.suit == hearts){
       this.heartsBroken = true;
     }
-    if(this.rules.queenBreaksHearts && card.rank == "Q" && card.suit == "spades"){
+    if(this.rules.queenBreaksHearts && card.rank == queen && card.suit == spades){
       this.heartsBroken = true;
     }
 
@@ -150,10 +149,10 @@ export class Hearts extends CardGame {
       this.playerToLead = winnerData.position;
 
       for(let card of this.currentTrick.cards){
-        if(card.suit == "hearts"){
+        if(card.suit == hearts){
           winnerData.roundPoints += 1;
         }
-        if(card.suit == "spades" && card.rank == "Q"){
+        if(card.suit == spades && card.rank == queen){
           winnerData.roundPoints += 13;
         }
       }
@@ -224,7 +223,7 @@ export class Hearts extends CardGame {
     }
     
     for(const p of this.playerData){
-      p.hand.sort((a:Card, b:Card):number=>{return compareCards(a, b, this.rankValues , p.player.suitValues)})
+      
       this.startingHandByPlayer.set(p.player, p.hand);
     }
 
@@ -237,16 +236,12 @@ export class Hearts extends CardGame {
       this.startPlayingPhase()
     }
     else{
-      this.startPassingPhase();
+      this.gamePhase = HeartsGamePhase.PASS;
     }
   }
 
-  private startPassingPhase(){
-    this.gamePhase == HeartsGamePhase.PASS;
-  }
-
   private startPlayingPhase(){
-    this.gamePhase == HeartsGamePhase.PLAY;
+    this.gamePhase = HeartsGamePhase.PLAY;
     this.startNewTrick(this.findTwoOfClubs());
   }
   private findTwoOfClubs():HeartsPlayer{

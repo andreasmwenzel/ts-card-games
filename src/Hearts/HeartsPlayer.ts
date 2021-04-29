@@ -1,4 +1,4 @@
-import { Suit, Card, compareCards, defaultRankValue} from "../cards";
+import { Suit, Card, two, clubs, hearts} from "ts-cards";
 import { Player } from "../Player";
 import { Hearts } from "./Hearts";
 
@@ -28,7 +28,7 @@ export class HeartsPlayer extends Player {
   public hasTwoOfClubs():boolean{
     if(this.hand){
       for(let card of this.hand){
-        if(card.rank=="2" && card.suit=="clubs"){
+        if(card.rank==two && card.suit==clubs){
           return true;
         }
       }
@@ -51,7 +51,7 @@ export class HeartsPlayer extends Player {
   
   public hasOnlyHearts():boolean{
     for(let card of this.hand){
-      if(card.suit != "hearts"){
+      if(card.suit != hearts){
         return false;
       }
     }

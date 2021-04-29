@@ -2,7 +2,6 @@
 import { HeartsPlayer } from "../index"
 import { Hearts } from "../index";
 import {GameState, PlayerInfo} from "../CardGame"
-import { defaultRankValue } from "../cards"
 
 let game:Hearts;
 const p0 = new HeartsPlayer("joe", "0");
@@ -24,7 +23,6 @@ describe("Game Setup", ()=>{
     expect(game).toHaveProperty("id", "Hearts1");
     expect(game.maxPlayers).toEqual(4);
     expect(game.gameState).toEqual(GameState.WAITING_FOR_PLAYERS)
-    expect(game.rankValues).toEqual(defaultRankValue)
     expect(game.players).toEqual([])
   });
 
@@ -182,7 +180,6 @@ describe("Game is full but not started", ()=>{
     expect(game).toHaveProperty("id", "Hearts1");
     expect(game.maxPlayers).toEqual(4);
     expect(game.gameState).toEqual(GameState.WAITING_FOR_START)
-    expect(game.rankValues).toEqual(defaultRankValue)
   })
   test("player functions", ()=>{
     expect(game.isPlayerReady(p1)).toEqual(p1Info.isReady);
@@ -286,7 +283,6 @@ describe("Active game", ()=>{
     expect(game).toHaveProperty("id", "Hearts1");
     expect(game.maxPlayers).toEqual(4);
     expect(game.gameState).toEqual(GameState.ACTIVE)
-    expect(game.rankValues).toEqual(defaultRankValue)
   })
   
   test("add player", ()=>{
@@ -326,7 +322,6 @@ describe("when a player has left", ()=>{
     expect(game).toHaveProperty("id", "Hearts1");
     expect(game.maxPlayers).toEqual(4);
     expect(game.gameState).toEqual(GameState.PLAYER_MISSING)
-    expect(game.rankValues).toEqual(defaultRankValue)
   })
 
   test("a player not at table tries to join", ()=>{
@@ -384,7 +379,6 @@ describe("after players rejoin", ()=>{
     expect(game).toHaveProperty("id", "Hearts1");
     expect(game.maxPlayers).toEqual(4);
     expect(game.gameState).toEqual(GameState.WAITING_FOR_RESTART)
-    expect(game.rankValues).toEqual(defaultRankValue)
     console.log(expectedPlayers);
   })
 
