@@ -1,5 +1,5 @@
 import {CardGame, PlayerData} from "../CardGame";
-import { Card, pinochleRankValues } from "../cards";
+import { Card, pinochleCardCompare } from "ts-cards";
 import { Player } from "../Player";
 import { PinochlePlayer } from "./PinochlePlayer";
 
@@ -24,7 +24,6 @@ export class Pinochle extends CardGame {
   }
 
   protected playerCount: number = 4;
-  public rankValues = pinochleRankValues;
 
   protected startGame(): void{
     

@@ -1,4 +1,4 @@
-import { Card, RankValues } from "./cards";
+import { Card } from "ts-cards";
 import { Player } from "./Player";
 
 export enum GameState {
@@ -31,7 +31,6 @@ export abstract class CardGame {
   public readonly id: string;
   public get maxPlayers(){return this.playerCount}
   public get gameState(): GameState {return this._gameState;}
-  public abstract rankValues: RankValues;
   
   public get players():ReadonlyArray<PlayerInfo>{
     let players:Array<PlayerInfo> = [];

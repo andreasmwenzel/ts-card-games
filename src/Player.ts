@@ -1,6 +1,6 @@
 
 import { CardGame } from "./CardGame"
-import { SuitValues, Card } from "./cards"
+import { Card } from "ts-cards"
 
 
 export abstract class Player {
@@ -9,7 +9,6 @@ export abstract class Player {
   public readonly id: string;
 
   protected abstract _game?: CardGame;
-  public suitValues:SuitValues=defaultSuitValue;
 
   get position(){return this._game?.playerPosition(this)}
   get hand():ReadonlyArray<Card>{
@@ -49,11 +48,4 @@ export abstract class Player {
     }
     this._game?.movePosition(this, position, tradePositions);
   }
-}
-
-let defaultSuitValue:SuitValues = {
-  clubs:0,
-  diamonds:1,
-  spades:2,
-  hearts:3
 }
