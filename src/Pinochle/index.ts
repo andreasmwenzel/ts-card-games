@@ -1,2 +1,2 @@
-export * from "./Pinochle"
-export * from "./PinochlePlayer"
+export * from './Pinochle';
+export * from './PinochlePlayer';

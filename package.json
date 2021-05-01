@@ -11,10 +11,16 @@
   "scripts": {
     "test": "jest --config jestconfig.json --verbose",
     "build": "rm -rf lib/ && tsc",
-    "prepare": "npm run build",
+    "prepare": "npm run compile",
     "prepublishOnly": "npm test",
     "version": "git add -A src",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "lint": "gts lint",
+    "clean": "gts clean",
+    "compile": "tsc",
+    "fix": "gts fix",
+    "pretest": "npm run compile",
+    "posttest": "npm run lint"
   },
   "repository": {
     "type": "git",
@@ -31,7 +37,9 @@
   },
   "devDependencies": {
     "@types/jest": "^26.0.14",
+    "@types/node": "^14.11.2",
     "@types/seedrandom": "^2.4.28",
+    "gts": "^3.1.0",
     "jest": "^26.4.2",
     "seedrandom": "^3.0.5",
     "ts-jest": "^26.4.1",

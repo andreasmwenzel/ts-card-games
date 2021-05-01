@@ -1,26 +1,26 @@
 //"use strict";
-import { HeartsPlayer } from "../index"
-import { Hearts } from "../index";
+import {HeartsPlayer} from '../index';
+import {Hearts} from '../index';
 
-describe("Setting Up a game", ()=>{
-  const game = new Hearts("Hearts1");
+describe('Setting Up a game', () => {
+  const game = new Hearts('Hearts1');
 
-  const p1 = new HeartsPlayer("joe", "1");
-  test("constructing a player", ()=>{
-    expect(p1.name).toEqual("joe");
-    expect(p1.id).toEqual("1");
-    expect(p1.game).toBe("no game");
+  const p1 = new HeartsPlayer('joe', '1');
+  test('constructing a player', () => {
+    expect(p1.name).toEqual('joe');
+    expect(p1.id).toEqual('1');
+    expect(p1.game).toBe('no game');
     expect(p1.position).toBe(undefined);
     expect(p1.ready).toEqual(false);
     expect(p1.hand).toEqual([]);
-  })
-/*
+  });
+  /*
   const p2 = new HeartsPlayer("jim", "2");
   const p3 = new HeartsPlayer("jessica", "3");
   const p4 = new HeartsPlayer("julie", "4")
 
   test("joining and leaving game", ()=>{
-    
+
     p1.joinGame(game,1);
     // expect(game.players[0]).toEqual(p1.name);
 
@@ -51,7 +51,7 @@ describe("Setting Up a game", ()=>{
     expect(()=>{
       game.movePosition(p4,1)
     }).toThrowError(/is not in game/)
-    
+
     //to an occupied seat
     expect(()=>{
       p3.movePosition(1)
@@ -60,7 +60,7 @@ describe("Setting Up a game", ()=>{
     //to the open seat
     p3.movePosition(3);
     expect(p3.position).toEqual(3);
-  
+
     //to an occupied seat, switching seats
     p3.movePosition(1, true);
     expect(p3.position).toEqual(1);
@@ -91,4 +91,4 @@ describe("Setting Up a game", ()=>{
 
   })
 */
-})
+});
