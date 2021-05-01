@@ -17,7 +17,11 @@ export class HeartsPlayer extends Player {
       this._game?.playCard(this, card);
     }
   }
-  
+
+  public passCard(cards:Card[]){
+    this._game?.passCards(this, cards);
+  }
+
   public hasCard(card:Card):boolean{
     if(this.hand?.includes(card)){
       return true;
@@ -50,11 +54,15 @@ export class HeartsPlayer extends Player {
   }
   
   public hasOnlyHearts():boolean{
-    for(let card of this.hand){
-      if(card.suit != hearts){
-        return false;
+    if(this.hand){  
+      for(let card of this.hand){
+        if(card.suit != hearts){
+          return false;
+        }
       }
+      return true;
     }
     return true;
   }
+  
 }

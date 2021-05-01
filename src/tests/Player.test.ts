@@ -1,7 +1,6 @@
 //"use strict";
 import { HeartsPlayer } from "../index"
 import { Hearts } from "../index";
-import {GameState} from "../CardGame"
 
 describe("Setting Up a game", ()=>{
   const game = new Hearts("Hearts1");
