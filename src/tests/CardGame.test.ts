@@ -1,7 +1,5 @@
 //"use strict";
-import { HeartsPlayer } from "../index"
-import { Hearts } from "../index";
-import {GameState, PlayerInfo} from "../CardGame"
+import { HeartsPlayer, Hearts, GameState, PlayerInfo } from "../index"
 
 let game:Hearts;
 const p0 = new HeartsPlayer("joe", "0");
@@ -379,7 +377,6 @@ describe("after players rejoin", ()=>{
     expect(game).toHaveProperty("id", "Hearts1");
     expect(game.maxPlayers).toEqual(4);
     expect(game.gameState).toEqual(GameState.WAITING_FOR_RESTART)
-    console.log(expectedPlayers);
   })
 
   test("add player", ()=>{

@@ -208,7 +208,6 @@ export abstract class CardGame {
         this._gameState = GameState.WAITING_FOR_PLAYERS;
       case GameState.WAITING_FOR_PLAYERS:{
         this.playerData = this.playerData.filter(pd => pd.player !== player);
-        break;
       }
     }
     return this.playerData.length;
@@ -253,7 +252,10 @@ export abstract class CardGame {
   }
   protected addCardsToPlayer(playerData:PlayerData, cards:Card[]){
     for(const card of cards){
-      playerData.hand.push(card);
+      this.addCardToPlayer(playerData, card);
     }
+  }
+  protected addCardToPlayer(playerData:PlayerData, card:Card){
+    playerData.hand.push(card);
   }
 }

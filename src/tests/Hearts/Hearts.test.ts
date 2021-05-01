@@ -1,8 +1,7 @@
 //"use strict";
-import { HeartsPlayer } from "../../index"
-import { Hearts } from "../../index";
-import {GameState} from "../../CardGame"
-import { Player } from "../../Player";
+import { HeartsPlayer, Hearts, HeartsGamePhase, HeartsPassDirection, GameState } from "../../index"
+// import { Hearts, HeartsGamePhase, HeartsPassDirection } from "../../index";
+// import { GameState } from "../../CardGame";
 
 describe("Setting Up a game", ()=>{
   const game = new Hearts("Hearts1");
@@ -13,93 +12,28 @@ describe("Setting Up a game", ()=>{
     expect(game.gameState).toEqual(GameState.WAITING_FOR_PLAYERS)
   });
 
-  // const p1 = new HeartsPlayer("joe", "1");
-  // const p2 = new HeartsPlayer("jim", "2");
-  // const p3 = new HeartsPlayer("jessica", "3");
-  // const p4 = new HeartsPlayer("julie", "4")
+  const p1 = new HeartsPlayer("joe", "1");
+  const p2 = new HeartsPlayer("jim", "2");
+  const p3 = new HeartsPlayer("jessica", "3");
+  const p4 = new HeartsPlayer("julie", "4")
 
-  // test("joining and leaving game", ()=>{
+  test("joining", ()=>{
     
-  //   p1.joinGame(game,1);
-  //   expect(game.players).toHaveLength(1);
-  //   expect(game.players).toContain(p1);
-  //   expect(p1.position).toEqual(1);
-  //   // expect(game.players[0]).toEqual(p1.name);
+    p1.joinGame(game,1);
+    p2.joinGame(game,2);
+    p3.joinGame(game);
+    p4.joinGame(game);
 
-  //   p2.joinGame(game,2);
-  //   expect(game.players).toHaveLength(2);
-  //   expect(game.players).toContain(p2);
-  //   expect(p2.position).toEqual(2);
-  //   // expect(game.players[0]).toEqual(p1.name);
-  //   // expect(game.players[1]).toEqual(p2.name);
+    expect(game.gameInfo).toStrictEqual([GameState.WAITING_FOR_START, HeartsGamePhase.DEAL, HeartsPassDirection.KEEP])
 
-  //   p3.joinGame(game);
-  //   expect(game.players).toHaveLength(3);
-  //   expect(game.players).toContain(p3);
-  //   expect(p3.position).toEqual(0);
+  })
+  test("players ready", ()=>{
+    p1.ready=true;
+    p2.ready=true;
+    p3.ready=true;
+    p4.ready=true;
 
-  // })
-
-  // test("joining errors", ()=>{
-  //   expect(()=>{
-  //     p4.joinGame(game, 0)
-  //   }).toThrowError(/already at position/);
-  //   expect(()=>{
-  //     p4.joinGame(game, 4)
-  //   }).toThrowError(/Join Error: Table on has positions/);
-
-    
-  // })
-
-  // test("switching seats",()=>{
-  //   //with a player not in a game
-  //   expect(()=>{
-  //     p4.movePosition(1)
-  //   }).toThrowError(/is not assigned to a game/);
-  //   expect(()=>{
-  //     game.movePosition(p4,1)
-  //   }).toThrowError(/is not in game/)
-    
-  //   //to an occupied seat
-  //   expect(()=>{
-  //     p3.movePosition(1)
-  //   }).toThrow(/is already at position /)
-
-  //   //to the open seat
-  //   p3.movePosition(3);
-  //   expect(p3.position).toEqual(3);
-  
-  //   //to an occupied seat, switching seats
-  //   p3.movePosition(1, true);
-  //   expect(p3.position).toEqual(1);
-  //   expect(p1.position).toEqual(3);
-  // })
-
-  // test("game fills up", ()=>{
-  //   p4.joinGame(game)
-  //   expect(p4.position).toEqual(0)
-  //   expect(game.gameState).toBe(GameState.WAITING_FOR_START);
-
-  //   //sorts on game filling up
-  //   expect(()=>{
-  //     const p5 = new HeartsPlayer("jeff", "4");
-  //     p5.joinGame(game);
-  //   }).toThrow(/Join Error: Game is full/)
-  // })
-
-  // test("players leave", ()=>{
-  //   p4.leaveGame();
-  //   expect(game.gameState).toBe(GameState.WAITING_FOR_PLAYERS);
-  //   expect(p4.game).toBe(undefined);
-    
-  // })
-
-  // test("players ready", ()=>{
-
-  // })
-
-  // test("game starts", ()=>{
-
-  // })
+    expect(game.gameInfo).toStrictEqual([GameState.ACTIVE, HeartsGamePhase.PASS, HeartsPassDirection.LEFT])
+  })
 
 })
