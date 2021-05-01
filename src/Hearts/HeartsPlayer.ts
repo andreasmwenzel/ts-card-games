@@ -1,38 +1,39 @@
-import { Suit, Card, two, clubs, hearts} from "ts-cards";
-import { Player } from "../Player";
-import { Hearts } from "./Hearts";
-
+import {Suit, Card, two, clubs, hearts} from 'ts-cards';
+import {Player} from '../Player';
+import {Hearts} from './Hearts';
 
 export class HeartsPlayer extends Player {
-  protected _game?:Hearts;
+  protected _game?: Hearts;
 
-  public get handLength(){return this.hand?.length}
+  public get handLength() {
+    return this.hand?.length;
+  }
 
   constructor(name: string, id: string) {
     super(name, id);
   }
-  
-  public playCard(card:Card){
-    if(this.hasCard(card)){
+
+  public playCard(card: Card) {
+    if (this.hasCard(card)) {
       this._game?.playCard(this, card);
     }
   }
 
-  public passCard(cards:Card[]){
+  public passCard(cards: Card[]) {
     this._game?.passCards(this, cards);
   }
 
-  public hasCard(card:Card):boolean{
-    if(this.hand?.includes(card)){
+  public hasCard(card: Card): boolean {
+    if (this.hand?.includes(card)) {
       return true;
-    } else{
-      throw new Error("Card Error: Player does not have that card")
+    } else {
+      throw new Error('Card Error: Player does not have that card');
     }
   }
-  public hasTwoOfClubs():boolean{
-    if(this.hand){
-      for(let card of this.hand){
-        if(card.rank==two && card.suit==clubs){
+  public hasTwoOfClubs(): boolean {
+    if (this.hand) {
+      for (const card of this.hand) {
+        if (card.rank === two && card.suit === clubs) {
           return true;
         }
       }
@@ -41,10 +42,10 @@ export class HeartsPlayer extends Player {
     return false;
   }
 
-  public hasSuit(suit:Suit):boolean{
-    if(this.hand){
-      for(let card of this.hand){
-        if(card.suit == suit){
+  public hasSuit(suit: Suit): boolean {
+    if (this.hand) {
+      for (const card of this.hand) {
+        if (card.suit === suit) {
           return true;
         }
       }
@@ -52,11 +53,11 @@ export class HeartsPlayer extends Player {
     }
     return false;
   }
-  
-  public hasOnlyHearts():boolean{
-    if(this.hand){  
-      for(let card of this.hand){
-        if(card.suit != hearts){
+
+  public hasOnlyHearts(): boolean {
+    if (this.hand) {
+      for (const card of this.hand) {
+        if (card.suit !== hearts) {
           return false;
         }
       }
@@ -64,5 +65,4 @@ export class HeartsPlayer extends Player {
     }
     return true;
   }
-  
 }
