@@ -1,9 +1,9 @@
 //"use strict";
 import {HeartsPlayer} from '../index';
-import {Hearts} from '../index';
+//import {Hearts} from '../index';
 
 describe('Setting Up a game', () => {
-  const game = new Hearts('Hearts1');
+  //const game = new Hearts('Hearts1');
 
   const p1 = new HeartsPlayer('joe', '1');
   test('constructing a player', () => {
