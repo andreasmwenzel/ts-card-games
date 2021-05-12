@@ -1,5 +1,5 @@
-import {CardGame, PlayerData} from '../CardGame';
-import {Card, pinochleCardCompare} from 'ts-cards';
+import {CardGame, CardGameInfo, PlayerData} from '../CardGame';
+// import {Card, pinochleCardCompare} from 'ts-cards';
 import {Player} from '../Player';
 import {PinochlePlayer} from './PinochlePlayer';
 
@@ -11,8 +11,8 @@ export class Pinochle extends CardGame {
   constructor(id: string) {
     super(id);
   }
-  public get gameInfo(): any {
-    return [];
+  public get gameInfo(): CardGameInfo {
+    return this.gameInfo;
   }
 
   public addPlayer(player: Player, position: number): number {
