@@ -1,8 +1,8 @@
 import {
   CardGame,
   CardGameInfo,
-  CardGameData,
   GameState,
+  CardGameRules,
   PlayerData,
   PlayerInfo,
 } from '../CardGame';
@@ -11,7 +11,6 @@ import {
   Card,
   Deck,
   StandardDeck,
-  Trick,
   standardCardCompare,
   two,
   clubs,
@@ -20,6 +19,7 @@ import {
   hearts,
 } from 'ts-cards';
 import {v4 as uuidv4} from 'uuid';
+import {CardGameTrick} from '../mechanics/CardGameTrick';
 import {HeartsPlayer} from './HeartsPlayer';
 
 export enum HeartsGamePhase {
@@ -33,7 +33,9 @@ export enum HeartsPassDirection {
   ACROSS = 'Across',
   KEEP = 'Keep',
 }
-function nextPassDirection(dir: HeartsPassDirection): HeartsPassDirection {
+export function nextPassDirection(
+  dir: HeartsPassDirection
+): HeartsPassDirection {
   switch (dir) {
     case HeartsPassDirection.LEFT:
       return HeartsPassDirection.RIGHT;
@@ -46,49 +48,56 @@ function nextPassDirection(dir: HeartsPassDirection): HeartsPassDirection {
   }
 }
 
-export type HeartsRules = {
+export interface HeartsGameRules extends CardGameRules {
   players: number;
   queenBreaksHearts: boolean;
   passingCount: number;
-};
+}
 
-interface HeartsPlayerData extends PlayerData {
+export interface HeartsPlayerData extends PlayerData {
   player: HeartsPlayer;
   score: number[];
-  totalPoints: number;
-  roundPoints: number;
+  round: HeartsPlayerRoundData;
+}
+
+export interface HeartsPlayerRoundData extends HeartsPlayerRoundInfo {
+  cardsDealt: Card[];
+  cardsPassed: Card[];
+  cardsReceived: Card[];
+}
+
+export interface HeartsPlayerRoundInfo {
   hasPassed: boolean;
+  points: number;
+  cardsTaken: Card[];
+  cardsPlayed: Card[];
 }
 
 export interface HeartsPlayerInfo extends PlayerInfo {
-  roundPoints: number | undefined;
   score: number[] | undefined;
-  totalPoints: number | undefined;
-  hasPassed: boolean | undefined;
+  round: HeartsPlayerRoundInfo;
 }
 
 export interface HeartsGameInfo extends CardGameInfo {
-  phase: HeartsGamePhase;
-  passDir: HeartsPassDirection;
+  gamePhase: HeartsGamePhase;
+  passDirection: HeartsPassDirection;
   players: HeartsPlayerInfo[];
+  rules: HeartsGameRules;
 }
 
-export interface HeartsGameData extends CardGameData {
+export interface HeartsGameData extends HeartsGameInfo {
   gamePhase: HeartsGamePhase;
   players: HeartsPlayerData[];
-  rules: HeartsRules;
   deck: Deck;
   currentPlayer: number;
-  passDirection: HeartsPassDirection;
   dealer: number;
 }
 
 export class Hearts extends CardGame {
-  protected playerCount = 4;
   protected gameData: HeartsGameData;
 
   constructor(id?: string, data?: HeartsGameData) {
-    super();
+    super(id, data);
 
     if (data) {
       this.gameData = data;
@@ -109,10 +118,6 @@ export class Hearts extends CardGame {
         dealer: 0,
       };
     }
-
-    this.playedCards = new Map<Card, HeartsPlayer>();
-    this.startingHandByPlayer = new Map<HeartsPlayer, Card[]>();
-    this.cardsPassedByPlayer = new Map<HeartsPlayer, Card[]>();
   }
 
   public get rules() {
@@ -122,18 +127,16 @@ export class Hearts extends CardGame {
   private playerToLead = 0;
   private firstTurn = false;
   private heartsBroken = false;
-  private playedCards: Map<Card, HeartsPlayer>;
-  private startingHandByPlayer: Map<HeartsPlayer, Card[]>;
-  private cardsPassedByPlayer: Map<HeartsPlayer, Card[]>;
-  private currentTrick: Trick | null = null;
+  private currentTrick: CardGameTrick<HeartsPlayerData> | null = null;
 
   public get gameInfo(): HeartsGameInfo {
     const info = {
       id: this.gameData.id,
-      state: this.gameData.gameState,
-      phase: this.gameData.gamePhase,
-      passDir: this.passDirection,
+      gameState: this.gameData.gameState,
+      gamePhase: this.gameData.gamePhase,
+      passDirection: this.passDirection,
       players: new Array<HeartsPlayerInfo>(),
+      rules: this.gameData.rules,
     };
 
     for (const p of this.gameData.players) {
@@ -142,10 +145,13 @@ export class Hearts extends CardGame {
         position: p.position,
         isReady: p.isReady,
         leftTable: p.leftTable,
-        roundPoints: p.roundPoints,
         score: p.score,
-        totalPoints: p.totalPoints,
-        hasPassed: p.hasPassed,
+        round: {
+          points: p.round.points,
+          hasPassed: p.round.hasPassed,
+          cardsPlayed: p.round.cardsPlayed,
+          cardsTaken: p.round.cardsTaken,
+        },
       });
     }
 
@@ -162,13 +168,24 @@ export class Hearts extends CardGame {
   protected startGame(): void {
     for (const p of this.gameData.players) {
       p.score = [];
-      p.totalPoints = 0;
     }
     this.startNewRound();
   }
 
   public addPlayer(player: HeartsPlayer, position = -1): number {
-    return super.addPlayer(player, position);
+    const x = super.addPlayer(player, position);
+    const playerData = this.findPlayerData(this.gameData.players, player);
+    playerData.score = [];
+    playerData.round = {
+      hasPassed: false,
+      cardsDealt: [],
+      cardsPassed: [],
+      cardsReceived: [],
+      cardsPlayed: [],
+      cardsTaken: [],
+      points: 0,
+    };
+    return x;
   }
 
   public playCard(player: HeartsPlayer, card: Card) {
@@ -201,7 +218,11 @@ export class Hearts extends CardGame {
         //can't play hearts unless player has no other cards
         throw new Error('Playing Error: Hearts has not been Broken');
       }
-      this.currentTrick = new Trick(card, standardCardCompare);
+      this.currentTrick = new CardGameTrick(
+        playerData,
+        card,
+        standardCardCompare
+      );
     } else {
       //check if player has any of leading suit
       if (this.currentTrick) {
@@ -214,11 +235,8 @@ export class Hearts extends CardGame {
       this.currentTrick?.addCard(card);
     }
 
-    this.playedCards.set(card, player);
-    this.removeCardFromPlayer(
-      this.gameData.players[this.gameData.currentPlayer],
-      card
-    );
+    playerData.round.cardsPlayed.push(card);
+    this.removeCardFromPlayer(playerData, card);
 
     if (card.suit === hearts) {
       this.heartsBroken = true;
@@ -233,33 +251,28 @@ export class Hearts extends CardGame {
 
     //advance current player
     this.gameData.currentPlayer =
-      (this.gameData.currentPlayer + 1) % this.playerCount;
+      (this.gameData.currentPlayer + 1) % this.gameData.rules.players;
 
     //resolve the trick
-    if (this.currentTrick?.length === 4) {
+    if (this.currentTrick?.length === this.gameData.rules.players) {
       //get winner of trick
-      const winningPlayer = this.playedCards.get(this.currentTrick.winner);
-      if (!winningPlayer) {
+      const winningPlayerData = this.currentTrick.winnningPlayerData;
+      if (!winningPlayerData) {
         throw new Error('No winner found in this trick');
       }
 
-      const winningPlayerData = this.findPlayerData(
-        this.gameData.players,
-        winningPlayer
-      );
       this.playerToLead = winningPlayerData.position;
-
       for (const card of this.currentTrick.cards) {
         if (card.suit === hearts) {
-          winningPlayerData.roundPoints += 1;
+          winningPlayerData.round.points += 1;
         }
         if (card.suit === spades && card.rank === queen) {
-          winningPlayerData.roundPoints += 13;
+          winningPlayerData.round.points += 13;
         }
       }
 
       //if player still has cards, start a new trick
-      if (winningPlayer.hand.length > 0) {
+      if (winningPlayerData.hand.length > 0) {
         this.startNewTrick(winningPlayerData);
       } else {
         this.scoreRound();
@@ -270,27 +283,28 @@ export class Hearts extends CardGame {
     //finish the round
     let endGame = false;
     for (const p of this.gameData.players) {
-      if (p.roundPoints === 26) {
-        p.roundPoints = 0;
+      if (p.round.points === 26) {
+        p.round.points = 0;
         //shot the moon
         for (const pl of this.gameData.players) {
           if (pl !== p) {
-            pl.roundPoints = 26;
+            pl.round.points = 26;
           }
         }
       }
     }
     for (const p of this.gameData.players) {
-      p.score.push(p.roundPoints);
-      p.totalPoints += p.roundPoints;
-      if (p.totalPoints >= 100) {
+      p.score.push(p.round.points);
+      const totalScore = p.score.reduce((a, b) => a + b, 0);
+      if (totalScore >= 100) {
         endGame = true;
       }
     }
     if (endGame) {
       this.gameData.gameState = GameState.FINISHED;
     } else {
-      this.gameData.dealer = (this.gameData.dealer + 1) % this.playerCount;
+      this.gameData.dealer =
+        (this.gameData.dealer + 1) % this.gameData.rules.players;
       this.startNewRound();
     }
   }
@@ -306,7 +320,7 @@ export class Hearts extends CardGame {
     }
 
     const playerData = this.findPlayerData(this.gameData.players, player);
-    if (playerData.hasPassed) {
+    if (playerData.round.hasPassed) {
       throw new Error(
         'Passing Error: player has already passed cards this round'
       );
@@ -316,12 +330,12 @@ export class Hearts extends CardGame {
         throw new Error('Passing Error: player does not have that card');
       }
     }
-    this.cardsPassedByPlayer.set(playerData.player, cards);
-    playerData.hasPassed = true;
+    playerData.round.cardsPassed = cards;
+    playerData.round.hasPassed = true;
 
     let allPassed = true;
     for (const p of this.gameData.players) {
-      if (!p.hasPassed) {
+      if (!p.round.hasPassed) {
         allPassed = false;
         break;
       }
@@ -333,37 +347,31 @@ export class Hearts extends CardGame {
 
     //remove cards from players and add to hand of who they were passing to
     for (const p of this.gameData.players) {
-      const cards = this.cardsPassedByPlayer.get(p.player);
+      const cards = p.round.cardsPassed;
       let passedToPlayerData: HeartsPlayerData;
       switch (this.passDirection) {
         case HeartsPassDirection.LEFT:
           passedToPlayerData = this.gameData.players[
-            (p.position + 1) % this.playerCount
+            (p.position + 1) % this.gameData.rules.players
           ];
           break;
         case HeartsPassDirection.RIGHT:
           passedToPlayerData = this.gameData.players[
-            (p.position - 1) % this.playerCount
+            (p.position - 1) % this.gameData.rules.players
           ];
           break;
         case HeartsPassDirection.ACROSS:
           passedToPlayerData = this.gameData.players[
-            (p.position + 2) % this.playerCount
+            (p.position + 2) % this.gameData.rules.players
           ];
           break;
         default:
           throw new Error('Pass cards error: unexepcted pass direction');
       }
-      if (cards) {
-        for (const card of cards) {
-          this.removeCardFromPlayer(p, card);
-          this.addCardToPlayer(passedToPlayerData, card);
-        }
-      } else {
-        throw new Error(
-          'Pass cards error: player not found in passed cards data'
-        );
-      }
+
+      this.removeCardsFromPlayer(p, cards);
+      this.addCardsToPlayer(passedToPlayerData, cards);
+      passedToPlayerData.round.cardsReceived = cards;
     }
     this.gameData.gamePhase = HeartsGamePhase.PLAY;
   }
@@ -376,29 +384,34 @@ export class Hearts extends CardGame {
 
   private startNewRound(): void {
     this.gameData.gamePhase = HeartsGamePhase.DEAL;
-    this.playedCards = new Map<Card, HeartsPlayer>();
-    this.cardsPassedByPlayer = new Map<HeartsPlayer, Card[]>();
     //advance passing direction
     this.gameData.passDirection = nextPassDirection(this.passDirection);
 
     for (const p of this.gameData.players) {
-      p.roundPoints = 0;
-      p.hasPassed = false;
+      p.round = {
+        points: 0,
+        cardsDealt: [],
+        cardsPassed: [],
+        cardsPlayed: [],
+        cardsReceived: [],
+        cardsTaken: [],
+        hasPassed: false,
+      };
     }
 
     //deal the deck
     this.gameData.deck.shuffle();
 
-    let dealTo = (this.gameData.dealer + 1) % this.playerCount;
+    let dealTo = (this.gameData.dealer + 1) % this.gameData.rules.players;
     while (this.gameData.deck.drawPile.length) {
       const p = this.gameData.players[dealTo];
       this.addCardsToPlayer(p, this.gameData.deck.draw());
 
-      dealTo = (dealTo + 1) % this.playerCount;
+      dealTo = (dealTo + 1) % this.gameData.rules.players;
     }
 
     for (const p of this.gameData.players) {
-      this.startingHandByPlayer.set(p.player, p.hand);
+      p.round.cardsDealt = p.hand;
     }
 
     //set flag for playing 2 of clubs and

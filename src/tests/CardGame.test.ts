@@ -9,28 +9,24 @@ const p3 = new HeartsPlayer('julie', '3');
 
 const p0Info: PlayerInfo = {
   name: p0.name,
-  id: p0.id,
   position: -1,
   isReady: false,
   leftTable: false,
 };
 const p1Info: PlayerInfo = {
   name: p1.name,
-  id: p1.id,
   position: -1,
   isReady: false,
   leftTable: false,
 };
 const p2Info: PlayerInfo = {
   name: p2.name,
-  id: p2.id,
   position: -1,
   isReady: false,
   leftTable: false,
 };
 const p3Info: PlayerInfo = {
   name: p3.name,
-  id: p3.id,
   position: -1,
   isReady: false,
   leftTable: false,
@@ -173,7 +169,7 @@ describe('Before game fills up', () => {
 
   test('remove players', () => {
     game.removePlayer(p0);
-    expectedPlayers = expectedPlayers.filter(p => p.id !== p0.id);
+    expectedPlayers = expectedPlayers.filter(p => p.name !== p0.name);
     p0Info.isReady = false;
 
     expect(game.players).toEqual(expectedPlayers);
@@ -259,7 +255,7 @@ describe('Game is full but not started', () => {
 
   test('remove player', () => {
     game.removePlayer(p1);
-    expectedPlayers = expectedPlayers.filter(pl => pl.id !== p1.id);
+    expectedPlayers = expectedPlayers.filter(pl => pl.name !== p1.name);
 
     p1Info.isReady = false;
 

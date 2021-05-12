@@ -1,0 +1,1 @@
+export {CardGameTrick} from './CardGameTrick';

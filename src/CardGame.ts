@@ -1,5 +1,6 @@
 import {Card} from 'ts-cards';
 import {Player} from './Player';
+import {v4 as uuidv4} from 'uuid';
 
 export enum GameState {
   WAITING_FOR_PLAYERS,
@@ -10,9 +11,7 @@ export enum GameState {
   FINISHED,
 }
 
-export interface CardGameData {
-  id: string;
-  gameState: GameState;
+export interface CardGameData extends CardGameInfo {
   players: PlayerData[];
 }
 
@@ -22,28 +21,43 @@ export interface PlayerInfo {
   isReady: boolean;
   leftTable: boolean;
 }
-export interface PlayerData {
+
+export interface CardGameRules {
+  players: number;
+}
+
+export interface PlayerData extends PlayerInfo {
   player: Player;
-  position: number;
-  isReady: boolean;
-  leftTable: boolean;
   hand: Card[];
 }
 
 export interface CardGameInfo {
   id: string;
-  state: GameState;
+  gameState: GameState;
   players: PlayerInfo[];
+  rules: CardGameRules;
 }
 
 export abstract class CardGame {
-  protected abstract playerCount: number;
-  protected abstract gameData: CardGameData;
+  protected gameData: CardGameData;
 
-  constructor() {}
+  constructor(id?: string, data?: CardGameData) {
+    if (data) {
+      this.gameData = data;
+    } else {
+      this.gameData = {
+        id: id ? id : uuidv4(),
+        players: [],
+        gameState: GameState.WAITING_FOR_PLAYERS,
+        rules: {
+          players: 4,
+        },
+      };
+    }
+  }
 
   public get maxPlayers() {
-    return this.playerCount;
+    return this.gameData.rules.players;
   }
   public get gameState(): GameState {
     return this.gameData.gameState;
@@ -96,12 +110,12 @@ export abstract class CardGame {
     }
     if (
       !Number.isInteger(position) ||
-      position >= this.playerCount ||
+      position >= this.gameData.rules.players ||
       position < -1
     ) {
       throw new Error(
         `Join Error: Table has integer positions 0 through ${
-          this.playerCount - 1
+          this.gameData.rules.players - 1
         } or use -1 to find open seat`
       );
     }
@@ -132,7 +146,7 @@ export abstract class CardGame {
         positions.push(p.position);
       }
       positions.sort();
-      for (let i = 0; i < this.playerCount; i++) {
+      for (let i = 0; i < this.gameData.rules.players; i++) {
         if (positions[i] !== i) {
           pos = i;
           break;
@@ -150,13 +164,14 @@ export abstract class CardGame {
 
     const newPlayerData: PlayerData = {
       player: player,
+      name: player.name,
       hand: [],
       position: pos,
       isReady: false,
       leftTable: false,
     };
     this.gameData.players.push(newPlayerData);
-    if (this.gameData.players.length === this.playerCount) {
+    if (this.gameData.players.length === this.gameData.rules.players) {
       this.gameData.gameState = GameState.WAITING_FOR_START;
     }
 
@@ -169,12 +184,12 @@ export abstract class CardGame {
   ) {
     if (
       !Number.isInteger(position) ||
-      position >= this.playerCount ||
+      position >= this.gameData.rules.players ||
       position < 0
     ) {
       throw new Error(
         `Move Position Error: Table has integer positions 0 through ${
-          this.playerCount - 1
+          this.gameData.rules.players - 1
         }`
       );
     }
@@ -319,12 +334,17 @@ export abstract class CardGame {
   protected removeCardFromPlayer(playerData: PlayerData, card: Card) {
     playerData.hand = playerData.hand.filter(obj => obj !== card);
   }
-  protected addCardsToPlayer(playerData: PlayerData, cards: Card[]) {
+  protected removeCardsFromPlayer(playerData: PlayerData, cards: Card[]) {
     for (const card of cards) {
-      this.addCardToPlayer(playerData, card);
+      this.removeCardFromPlayer(playerData, card);
     }
   }
   protected addCardToPlayer(playerData: PlayerData, card: Card) {
     playerData.hand.push(card);
+  }
+  protected addCardsToPlayer(playerData: PlayerData, cards: Card[]) {
+    for (const card of cards) {
+      this.addCardToPlayer(playerData, card);
+    }
   }
 }

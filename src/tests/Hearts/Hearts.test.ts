@@ -16,10 +16,15 @@ describe('Setting Up a game', () => {
   game = new Hearts(gameID);
   expectedGameInfo = {
     id: gameID,
-    state: GameState.WAITING_FOR_PLAYERS,
-    phase: HeartsGamePhase.DEAL,
+    gameState: GameState.WAITING_FOR_PLAYERS,
+    gamePhase: HeartsGamePhase.DEAL,
     players: [],
-    passDir: HeartsPassDirection.KEEP,
+    passDirection: HeartsPassDirection.KEEP,
+    rules: {
+      players: 4,
+      queenBreaksHearts: false,
+      passingCount: 3,
+    },
   };
 
   test('start new game', () => {
@@ -38,10 +43,13 @@ describe('Setting Up a game', () => {
       position: 1,
       isReady: false,
       leftTable: false,
-      roundPoints: undefined,
-      score: undefined,
-      totalPoints: undefined,
-      hasPassed: undefined,
+      round: {
+        hasPassed: false,
+        points: 0,
+        cardsPlayed: [],
+        cardsTaken: [],
+      },
+      score: [],
     });
     expect(game.gameInfo).toEqual(expectedGameInfo);
     p2.joinGame(game, 2);
@@ -50,10 +58,13 @@ describe('Setting Up a game', () => {
       position: 2,
       isReady: false,
       leftTable: false,
-      roundPoints: undefined,
-      score: undefined,
-      totalPoints: undefined,
-      hasPassed: undefined,
+      round: {
+        hasPassed: false,
+        points: 0,
+        cardsPlayed: [],
+        cardsTaken: [],
+      },
+      score: [],
     });
     expect(game.gameInfo).toEqual(expectedGameInfo);
 
@@ -63,10 +74,13 @@ describe('Setting Up a game', () => {
       position: 0,
       isReady: false,
       leftTable: false,
-      roundPoints: undefined,
-      score: undefined,
-      totalPoints: undefined,
-      hasPassed: undefined,
+      round: {
+        hasPassed: false,
+        points: 0,
+        cardsPlayed: [],
+        cardsTaken: [],
+      },
+      score: [],
     });
     expect(game.gameInfo).toEqual(expectedGameInfo);
 
@@ -76,13 +90,15 @@ describe('Setting Up a game', () => {
       position: 3,
       isReady: false,
       leftTable: false,
-      roundPoints: undefined,
-      score: undefined,
-      totalPoints: undefined,
-      hasPassed: undefined,
+      round: {
+        hasPassed: false,
+        points: 0,
+        cardsPlayed: [],
+        cardsTaken: [],
+      },
+      score: [],
     });
-    expectedGameInfo.state = GameState.WAITING_FOR_START;
-
+    expectedGameInfo.gameState = GameState.WAITING_FOR_START;
     expect(game.gameInfo).toEqual(expectedGameInfo);
     console.log(game.gameInfo);
   });
