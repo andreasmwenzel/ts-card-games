@@ -1,4 +1,4 @@
-import {Suit, Card, two, clubs, hearts} from 'ts-cards';
+import {Suit, Card, two, clubs, hearts, Rank} from 'ts-cards';
 import {Player} from '../Player';
 import {Hearts} from './Hearts';
 
@@ -14,32 +14,27 @@ export class HeartsPlayer extends Player {
   }
 
   public playCard(card: Card) {
-    if (this.hasCard(card)) {
-      this._game?.playCard(this, card);
-    }
+    this._game?.playCard(this, card);
   }
 
-  public passCard(cards: Card[]) {
+  public passCards(cards: Card[]) {
     this._game?.passCards(this, cards);
   }
 
-  public hasCard(card: Card): boolean {
-    if (this.hand?.includes(card)) {
-      return true;
-    } else {
-      throw new Error('Card Error: Player does not have that card');
-    }
-  }
-  public hasTwoOfClubs(): boolean {
+  public hasCard(rank: Rank, suit: Suit): boolean {
     if (this.hand) {
       for (const card of this.hand) {
-        if (card.rank === two && card.suit === clubs) {
+        if (card.rank === rank && card.suit === suit) {
           return true;
         }
       }
       return false;
     }
     return false;
+  }
+
+  public hasTwoOfClubs(): boolean {
+    return this.hasCard(two, clubs);
   }
 
   public hasSuit(suit: Suit): boolean {

@@ -17,6 +17,7 @@ import {
   queen,
   spades,
   hearts,
+  Rank,
 } from 'ts-cards';
 import {v4 as uuidv4} from 'uuid';
 import {CardGameTrick} from '../mechanics/CardGameTrick';
@@ -200,6 +201,10 @@ export class Hearts extends CardGame {
     const playerData = this.gameData.players[this.gameData.currentPlayer];
     if (playerData.player !== player) {
       throw new Error("Playing Error: Not this player's turn");
+    }
+
+    if (!playerData.hand.includes(card)) {
+      throw new Error('Playing Error: player does not have that card');
     }
 
     if (this.gameData.currentPlayer === this.playerToLead) {
@@ -439,13 +444,21 @@ export class Hearts extends CardGame {
     throw new Error('Two of Clubs: No player had the two of clubs');
   }
 
-  public hasTwoOfClubs(playerData: HeartsPlayerData): boolean {
+  public hasCard(
+    playerData: HeartsPlayerData,
+    rank: Rank,
+    suit: Suit
+  ): boolean {
     for (const card of playerData.hand) {
-      if (card.rank === two && card.suit === clubs) {
+      if (card.rank === rank && card.suit === suit) {
         return true;
       }
     }
     return false;
+  }
+
+  public hasTwoOfClubs(playerData: HeartsPlayerData): boolean {
+    return this.hasCard(playerData, two, clubs);
   }
 
   public hasSuit(playerData: HeartsPlayerData, suit: Suit): boolean {
