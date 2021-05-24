@@ -1,6 +1,6 @@
-import {Suit, Card, two, clubs, hearts} from 'ts-cards';
+import {Suit, Card, two, clubs, hearts, Rank} from 'ts-cards';
 import {Player} from '../Player';
-import {Hearts} from './Hearts';
+import {Hearts, HeartsPlayerData} from './Hearts';
 
 export class HeartsPlayer extends Player {
   protected _game?: Hearts;
@@ -14,55 +14,65 @@ export class HeartsPlayer extends Player {
   }
 
   public playCard(card: Card) {
-    if (this.hasCard(card)) {
-      this._game?.playCard(this, card);
-    }
+    this._game?.playCard(this, card);
   }
 
-  public passCard(cards: Card[]) {
+  public passCards(cards: Card[]) {
     this._game?.passCards(this, cards);
   }
 
-  public hasCard(card: Card): boolean {
-    if (this.hand?.includes(card)) {
-      return true;
-    } else {
-      throw new Error('Card Error: Player does not have that card');
-    }
-  }
-  public hasTwoOfClubs(): boolean {
-    if (this.hand) {
-      for (const card of this.hand) {
-        if (card.rank === two && card.suit === clubs) {
-          return true;
-        }
+  public hasCard(rank: Rank, suit: Suit): boolean {
+    for (const card of this.hand) {
+      if (card.rank === rank && card.suit === suit) {
+        return true;
       }
-      return false;
     }
     return false;
   }
 
+  public hasTwoOfClubs(): boolean {
+    return this.hasCard(two, clubs);
+  }
+
   public hasSuit(suit: Suit): boolean {
-    if (this.hand) {
-      for (const card of this.hand) {
-        if (card.suit === suit) {
-          return true;
-        }
+    for (const card of this.hand) {
+      if (card.suit === suit) {
+        return true;
       }
-      return false;
     }
     return false;
   }
 
   public hasOnlyHearts(): boolean {
-    if (this.hand) {
-      for (const card of this.hand) {
-        if (card.suit !== hearts) {
-          return false;
-        }
+    for (const card of this.hand) {
+      if (card.suit !== hearts) {
+        return false;
       }
-      return true;
     }
     return true;
+  }
+
+  public get playerData(): HeartsPlayerData {
+    if (this._game) {
+      return this._game.getPlayerData(this);
+    }
+    return {
+      player: this,
+      score: [],
+      hand: [],
+      name: this.name,
+      position: -1,
+      isReady: false,
+      leftTable: false,
+      round: {
+        cardsDealt: [],
+        cardsPassed: [],
+        cardsPlayed: [],
+        cardsReceived: [],
+        cardsTaken: [],
+        points: 0,
+        hasPassed: false,
+      },
+    };
   }
 }

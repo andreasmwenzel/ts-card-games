@@ -3,12 +3,12 @@ import {Player} from './Player';
 import {v4 as uuidv4} from 'uuid';
 
 export enum GameState {
-  WAITING_FOR_PLAYERS,
-  WAITING_FOR_START,
-  ACTIVE,
-  PLAYER_MISSING,
-  WAITING_FOR_RESTART,
-  FINISHED,
+  WAITING_FOR_PLAYERS = 'waiting for players',
+  WAITING_FOR_START = 'waiting for start',
+  ACTIVE = 'active',
+  PLAYER_MISSING = 'player missing',
+  WAITING_FOR_RESTART = 'waiting for restart',
+  FINISHED = 'finished',
 }
 
 export interface CardGameData extends CardGameInfo {
