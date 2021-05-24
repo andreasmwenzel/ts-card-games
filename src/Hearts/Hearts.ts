@@ -11,7 +11,6 @@ import {
   Card,
   Deck,
   StandardDeck,
-  standardCardCompare,
   two,
   clubs,
   queen,
@@ -53,6 +52,7 @@ export interface HeartsGameRules extends CardGameRules {
   players: number;
   queenBreaksHearts: boolean;
   passingCount: number;
+  playTo: number;
 }
 
 export interface HeartsPlayerData extends PlayerData {
@@ -75,7 +75,7 @@ export interface HeartsPlayerRoundInfo {
 }
 
 export interface HeartsPlayerInfo extends PlayerInfo {
-  score: number[] | undefined;
+  score: number[];
   round: HeartsPlayerRoundInfo;
 }
 
@@ -84,24 +84,48 @@ export interface HeartsGameInfo extends CardGameInfo {
   passDirection: HeartsPassDirection;
   players: HeartsPlayerInfo[];
   rules: HeartsGameRules;
+  round: HeartsGameRoundInfo;
+}
+
+export interface HeartsGameRoundInfo {
+  positionToLead: number;
+  positionToPlay: number;
+  firstTrick: boolean;
+  heartsBroken: boolean;
 }
 
 export interface HeartsGameData extends HeartsGameInfo {
   gamePhase: HeartsGamePhase;
   players: HeartsPlayerData[];
   deck: Deck;
-  currentPlayer: number;
   dealer: number;
 }
 
 export class Hearts extends CardGame {
   protected gameData: HeartsGameData;
+  private currentTrick: CardGameTrick<HeartsPlayerData> | null = null;
 
   constructor(id?: string, data?: HeartsGameData) {
     super(id, data);
 
     if (data) {
       this.gameData = data;
+      let p = this.gameData.round.positionToLead;
+      while (p !== this.gameData.round.positionToPlay) {
+        const pData = this.gameData.players[p];
+        if (!this.currentTrick) {
+          this.currentTrick = new CardGameTrick(
+            pData,
+            pData.round.cardsPlayed.slice(-1)[0]
+          );
+        } else {
+          this.currentTrick.addCardToTrick(
+            pData,
+            pData.round.cardsPlayed.slice(-1)[0]
+          );
+        }
+        p = p + 1;
+      }
     } else {
       this.gameData = {
         id: id ? id : uuidv4(),
@@ -114,9 +138,15 @@ export class Hearts extends CardGame {
           players: 4,
           queenBreaksHearts: false,
           passingCount: 3,
+          playTo: 100,
         },
-        currentPlayer: 0,
         dealer: 0,
+        round: {
+          positionToPlay: 0,
+          positionToLead: 0,
+          firstTrick: true,
+          heartsBroken: false,
+        },
       };
     }
   }
@@ -124,12 +154,6 @@ export class Hearts extends CardGame {
   public get rules() {
     return this.gameData.rules;
   }
-
-  private playerToLead = 0;
-  private firstTurn = false;
-  private heartsBroken = false;
-  private currentTrick: CardGameTrick<HeartsPlayerData> | null = null;
-
   public get gameInfo(): HeartsGameInfo {
     const info = {
       id: this.gameData.id,
@@ -138,6 +162,7 @@ export class Hearts extends CardGame {
       passDirection: this.passDirection,
       players: new Array<HeartsPlayerInfo>(),
       rules: this.gameData.rules,
+      round: this.gameData.round,
     };
 
     for (const p of this.gameData.players) {
@@ -158,7 +183,9 @@ export class Hearts extends CardGame {
 
     return info;
   }
-
+  public get deck(): Readonly<Deck> {
+    return this.gameData.deck;
+  }
   public get gamePhase(): HeartsGamePhase {
     return this.gameData.gamePhase;
   }
@@ -174,7 +201,7 @@ export class Hearts extends CardGame {
   }
 
   public addPlayer(player: HeartsPlayer, position = -1): number {
-    const x = super.addPlayer(player, position);
+    const pos = super.addPlayer(player, position);
     const playerData = this.findPlayerData(this.gameData.players, player);
     playerData.score = [];
     playerData.round = {
@@ -186,7 +213,7 @@ export class Hearts extends CardGame {
       cardsTaken: [],
       points: 0,
     };
-    return x;
+    return pos;
   }
 
   public playCard(player: HeartsPlayer, card: Card) {
@@ -198,7 +225,9 @@ export class Hearts extends CardGame {
         'Playing Error: Not in the playing phase or active gamestate'
       );
     }
-    const playerData = this.gameData.players[this.gameData.currentPlayer];
+    const playerData = this.gameData.players[
+      this.gameData.round.positionToPlay
+    ];
     if (playerData.player !== player) {
       throw new Error("Playing Error: Not this player's turn");
     }
@@ -207,83 +236,86 @@ export class Hearts extends CardGame {
       throw new Error('Playing Error: player does not have that card');
     }
 
-    if (this.gameData.currentPlayer === this.playerToLead) {
-      if (this.firstTurn) {
+    if (
+      this.gameData.round.positionToPlay === this.gameData.round.positionToLead
+    ) {
+      if (this.gameData.round.firstTrick) {
         //first card played every round must be the two of clubs `
         if (!(card.suit === clubs && card.rank === two)) {
           throw new Error('Playing Error: first card must be a two of clubs');
         }
-        this.firstTurn = false;
       }
       if (
-        !this.heartsBroken &&
+        !this.gameData.round.heartsBroken &&
         card.suit === hearts &&
         !this.hasOnlyHearts(playerData)
       ) {
         //can't play hearts unless player has no other cards
-        throw new Error('Playing Error: Hearts has not been Broken');
+        throw new Error('Playing Error: Hearts has not been broken');
       }
-      this.currentTrick = new CardGameTrick(
-        playerData,
-        card,
-        standardCardCompare
-      );
+      this.currentTrick = new CardGameTrick(playerData, card);
     } else {
       //check if player has any of leading suit
-      if (this.currentTrick) {
-        if (card.suit !== this.currentTrick.suit) {
-          if (this.hasSuit(playerData, this.currentTrick.suit)) {
-            throw new Error('Playing Error: Must Follow Suit');
-          }
+      if (!this.currentTrick) {
+        throw new Error('Play error: no trick fround');
+      }
+      if (card.suit !== this.currentTrick.suit) {
+        if (this.hasSuit(playerData, this.currentTrick.suit)) {
+          throw new Error('Playing Error: Must Follow Suit');
         }
       }
-      this.currentTrick?.addCard(card);
+      if (this.gameData.round.firstTrick) {
+        //points played on first trick
+        if (this.cardPoints(card) > 0 && !this.hasOnlyPoints(playerData)) {
+          throw new Error('Playing Error: Cannot play points of first trick');
+        }
+      }
+      this.currentTrick.addCardToTrick(playerData, card);
     }
 
     playerData.round.cardsPlayed.push(card);
     this.removeCardFromPlayer(playerData, card);
 
     if (card.suit === hearts) {
-      this.heartsBroken = true;
+      this.gameData.round.heartsBroken = true;
     }
     if (
       this.rules.queenBreaksHearts &&
       card.rank === queen &&
       card.suit === spades
     ) {
-      this.heartsBroken = true;
+      this.gameData.round.heartsBroken = true;
     }
 
-    //advance current player
-    this.gameData.currentPlayer =
-      (this.gameData.currentPlayer + 1) % this.gameData.rules.players;
-
     //resolve the trick
-    if (this.currentTrick?.length === this.gameData.rules.players) {
+    if (this.currentTrick.length === this.gameData.rules.players) {
+      if (this.gameData.round.firstTrick) {
+        this.gameData.round.firstTrick = false;
+      }
       //get winner of trick
       const winningPlayerData = this.currentTrick.winnningPlayerData;
       if (!winningPlayerData) {
         throw new Error('No winner found in this trick');
       }
 
-      this.playerToLead = winningPlayerData.position;
+      this.gameData.round.positionToLead = winningPlayerData.position;
       for (const card of this.currentTrick.cards) {
-        if (card.suit === hearts) {
-          winningPlayerData.round.points += 1;
-        }
-        if (card.suit === spades && card.rank === queen) {
-          winningPlayerData.round.points += 13;
-        }
+        winningPlayerData.round.cardsTaken.push(card);
+        winningPlayerData.round.points += this.cardPoints(card);
       }
-
       //if player still has cards, start a new trick
       if (winningPlayerData.hand.length > 0) {
         this.startNewTrick(winningPlayerData);
       } else {
         this.scoreRound();
       }
+    } else {
+      //advance current player
+      this.gameData.round.positionToPlay =
+        (this.gameData.round.positionToPlay + 1) % this.gameData.rules.players;
     }
   }
+
   private scoreRound() {
     //finish the round
     let endGame = false;
@@ -296,12 +328,13 @@ export class Hearts extends CardGame {
             pl.round.points = 26;
           }
         }
+        break;
       }
     }
     for (const p of this.gameData.players) {
       p.score.push(p.round.points);
       const totalScore = p.score.reduce((a, b) => a + b, 0);
-      if (totalScore >= 100) {
+      if (totalScore >= this.gameData.rules.playTo) {
         endGame = true;
       }
     }
@@ -310,7 +343,7 @@ export class Hearts extends CardGame {
     } else {
       this.gameData.dealer =
         (this.gameData.dealer + 1) % this.gameData.rules.players;
-      this.startNewRound();
+      this.gameData.gamePhase = HeartsGamePhase.DEAL;
     }
   }
 
@@ -362,7 +395,9 @@ export class Hearts extends CardGame {
           break;
         case HeartsPassDirection.RIGHT:
           passedToPlayerData = this.gameData.players[
-            (p.position - 1) % this.gameData.rules.players
+            (((p.position - 1) % this.gameData.rules.players) +
+              this.gameData.rules.players) %
+              this.gameData.rules.players
           ];
           break;
         case HeartsPassDirection.ACROSS:
@@ -378,17 +413,19 @@ export class Hearts extends CardGame {
       this.addCardsToPlayer(passedToPlayerData, cards);
       passedToPlayerData.round.cardsReceived = cards;
     }
-    this.gameData.gamePhase = HeartsGamePhase.PLAY;
+    this.startPlayingPhase();
   }
 
   private startNewTrick(playerData: HeartsPlayerData) {
     this.currentTrick = null;
-    this.playerToLead = playerData.position;
-    this.gameData.currentPlayer = this.playerToLead;
+    this.gameData.round.positionToLead = playerData.position;
+    this.gameData.round.positionToPlay = this.gameData.round.positionToLead;
   }
 
-  private startNewRound(): void {
-    this.gameData.gamePhase = HeartsGamePhase.DEAL;
+  public startNewRound(): void {
+    if (this.gamePhase !== HeartsGamePhase.DEAL) {
+      throw new Error('New Round Error: Not in the right Gamephase');
+    }
     //advance passing direction
     this.gameData.passDirection = nextPassDirection(this.passDirection);
 
@@ -419,9 +456,13 @@ export class Hearts extends CardGame {
       p.round.cardsDealt = p.hand;
     }
 
-    //set flag for playing 2 of clubs and
-    this.firstTurn = true;
-    this.heartsBroken = false;
+    //set flag for first trick and hearts broken
+    this.gameData.round = {
+      firstTrick: true,
+      heartsBroken: false,
+      positionToLead: 0,
+      positionToPlay: 0,
+    };
 
     //set phase to passing
     if (this.passDirection === HeartsPassDirection.KEEP) {
@@ -433,6 +474,7 @@ export class Hearts extends CardGame {
 
   private startPlayingPhase() {
     this.gameData.gamePhase = HeartsGamePhase.PLAY;
+    this.gameData.round.firstTrick = true;
     this.startNewTrick(this.findTwoOfClubs());
   }
   private findTwoOfClubs(): HeartsPlayerData {
@@ -444,7 +486,17 @@ export class Hearts extends CardGame {
     throw new Error('Two of Clubs: No player had the two of clubs');
   }
 
-  public hasCard(
+  public cardPoints(card: Card): number {
+    if (card.suit === hearts) {
+      return 1;
+    }
+    if (card.suit === spades && card.rank === queen) {
+      return 13;
+    }
+    return 0;
+  }
+
+  private hasCard(
     playerData: HeartsPlayerData,
     rank: Rank,
     suit: Suit
@@ -456,12 +508,10 @@ export class Hearts extends CardGame {
     }
     return false;
   }
-
-  public hasTwoOfClubs(playerData: HeartsPlayerData): boolean {
+  private hasTwoOfClubs(playerData: HeartsPlayerData): boolean {
     return this.hasCard(playerData, two, clubs);
   }
-
-  public hasSuit(playerData: HeartsPlayerData, suit: Suit): boolean {
+  private hasSuit(playerData: HeartsPlayerData, suit: Suit): boolean {
     for (const card of playerData.hand) {
       if (card.suit === suit) {
         return true;
@@ -469,13 +519,24 @@ export class Hearts extends CardGame {
     }
     return false;
   }
-
-  public hasOnlyHearts(playerData: HeartsPlayerData): boolean {
+  private hasOnlyHearts(playerData: HeartsPlayerData): boolean {
     for (const card of playerData.hand) {
       if (card.suit !== hearts) {
         return false;
       }
     }
     return true;
+  }
+  private hasOnlyPoints(playerData: HeartsPlayerData): boolean {
+    for (const card of playerData.hand) {
+      if (this.cardPoints(card) === 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public getPlayerData(player: HeartsPlayer): Readonly<HeartsPlayerData> {
+    return this.findPlayerData(this.gameData.players, player);
   }
 }

@@ -1,4 +1,4 @@
-import {Card, Suit, Trick} from 'ts-cards';
+import {Card, standardCardCompare, Suit, Trick} from 'ts-cards';
 import {PlayerData} from '../CardGame';
 
 export class CardGameTrick<T extends PlayerData> extends Trick {
@@ -7,7 +7,12 @@ export class CardGameTrick<T extends PlayerData> extends Trick {
   constructor(
     playerData: T,
     card: Card,
-    cardCompare: (a: Card, b: Card, leadSuit?: Suit, trump?: Suit) => number,
+    cardCompare: (
+      a: Card,
+      b: Card,
+      leadSuit?: Suit,
+      trump?: Suit
+    ) => number = standardCardCompare,
     trump?: Suit
   ) {
     super(card, cardCompare, trump);
@@ -15,7 +20,12 @@ export class CardGameTrick<T extends PlayerData> extends Trick {
     this.playerDataByCard.set(card, playerData);
   }
 
+  public addCardToTrick(playerData: T, card: Card) {
+    super.addCard(card);
+    this.playerDataByCard.set(card, playerData);
+  }
+
   public get winnningPlayerData() {
-    return this.playerDataByCard.get(this.winner);
+    return this.playerDataByCard.get(this.winningCard);
   }
 }
