@@ -2,7 +2,6 @@
   "name": "ts-card-games",
   "version": "0.1.0",
   "description": "Hearts, Pinochle and other games in typescript",
-  "module": "dist/index.js",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
