@@ -1475,9 +1475,6 @@ describe('Hearts game', () => {
     p3.playCard(kOfDiamonds);
     p0.playCard(qOfDiamonds);
 
-    console.log(game.gameInfo);
-    console.log(game.gameInfo.players);
-
     expect(game.gameInfo.gameState).toBe(GameState.FINISHED);
     printHands();
   });

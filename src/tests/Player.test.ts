@@ -9,7 +9,7 @@ describe('Setting Up a game', () => {
   test('constructing a player', () => {
     expect(p1.name).toEqual('joe');
     expect(p1.id).toEqual('1');
-    expect(p1.game).toBe('no game');
+    expect(p1.game).toBe(undefined);
     expect(p1.position).toBe(undefined);
     expect(p1.ready).toEqual(false);
     expect(p1.hand).toEqual([]);

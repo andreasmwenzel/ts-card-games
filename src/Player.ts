@@ -2,7 +2,7 @@ import {CardGame} from './CardGame';
 import {Card} from 'ts-cards';
 
 export abstract class Player {
-  public readonly name: string;
+  public name: string;
   public readonly id: string;
 
   protected abstract _game?: CardGame;
@@ -23,8 +23,8 @@ export abstract class Player {
     this._game?.playerReady(this, ready);
   }
 
-  get game(): string {
-    return this._game?.id ? this._game.id : 'no game';
+  get game(): string | undefined {
+    return this._game?.id;
   }
   constructor(name: string, id: string) {
     this.name = name;

@@ -1,17 +1,5 @@
 //"use strict";
-import {
-  HeartsPlayer,
-  Hearts,
-  HeartsGameInfo,
-  HeartsGamePhase,
-  HeartsPassDirection,
-  HeartsPlayerInfo,
-  GameState,
-  nextPassDirection,
-} from '../../index';
-import seedrandom = require('seedrandom');
-import {Card, clubs, four, hearts, spades} from 'ts-cards';
-
+import {HeartsPassDirection, nextPassDirection} from '../../index';
 describe('nextPassDirection', () => {
   test('left', () => {
     expect(nextPassDirection(HeartsPassDirection.LEFT)).toBe(
