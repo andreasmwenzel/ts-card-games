@@ -1,13 +1,4 @@
 //"use strict";
-import {
-  HeartsPlayer,
-  Hearts,
-  HeartsGameInfo,
-  HeartsGamePhase,
-  HeartsPassDirection,
-  HeartsPlayerInfo,
-  GameState,
-} from '../../index';
 import seedrandom = require('seedrandom');
 import {
   Card,
@@ -18,6 +9,14 @@ import {
   spades,
   standardRankValues,
 } from 'ts-cards';
+import {Hearts, HeartsPlayer} from '../..';
+import {GameState} from '../../types';
+import {
+  HeartsGameInfo,
+  HeartsGamePhase,
+  HeartsPassDirection,
+  HeartsPlayerInfo,
+} from '../../Hearts/types';
 
 const gameID = 'Hearts1';
 let game: Hearts;

@@ -1,4 +1,4 @@
-import {HeartsPlayer} from '../../index';
+import {HeartsPlayer} from '../../Hearts/HeartsPlayer';
 
 describe('Setting Up a game', () => {
   const player = new HeartsPlayer('player1', '1');

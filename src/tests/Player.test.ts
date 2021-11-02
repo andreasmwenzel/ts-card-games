@@ -1,5 +1,6 @@
 //"use strict";
-import {HeartsPlayer} from '../index';
+import {HeartsPlayer} from '..';
+
 //import {Hearts} from '../index';
 
 describe('Setting Up a game', () => {

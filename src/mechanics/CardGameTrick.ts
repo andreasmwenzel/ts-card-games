@@ -1,5 +1,5 @@
 import {Card, standardCardCompare, Suit, Trick} from 'ts-cards';
-import {PlayerData} from '../CardGame';
+import {PlayerData} from '../types';
 
 export class CardGameTrick<T extends PlayerData> extends Trick {
   private playerDataByCard: Map<Card, T>;

@@ -1,6 +1,7 @@
-import {CardGame, CardGameInfo, PlayerData} from '../CardGame';
+import {CardGame} from '../CardGame';
 // import {Card, pinochleCardCompare} from 'ts-cards';
 import {Player} from '../Player';
+import {CardGameInfo, PlayerData} from '../types';
 import {PinochlePlayer} from './PinochlePlayer';
 
 export class Pinochle extends CardGame {

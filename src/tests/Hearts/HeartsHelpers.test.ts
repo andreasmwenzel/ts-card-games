@@ -1,5 +1,7 @@
+import {HeartsPassDirection} from '../../Hearts/types';
+import {nextPassDirection} from '../../Hearts/utils';
+
 //"use strict";
-import {HeartsPassDirection, nextPassDirection} from '../../index';
 describe('nextPassDirection', () => {
   test('left', () => {
     expect(nextPassDirection(HeartsPassDirection.LEFT)).toBe(

@@ -33,7 +33,6 @@ export abstract class Player {
 
   public leaveGame() {
     this._game?.removePlayer(this);
-    this._game = undefined;
   }
 
   public joinGame(game: CardGame, position = -1) {

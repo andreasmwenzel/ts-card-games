@@ -18,7 +18,7 @@
     "clean": "gts clean",
     "compile": "tsc",
     "fix": "gts fix",
-    "posttest": "npm run lint"
+    "posttest": "npm run fix && npm run lint"
   },
   "repository": {
     "type": "git",

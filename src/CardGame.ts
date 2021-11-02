@@ -1,42 +1,13 @@
 import {Card} from 'ts-cards';
 import {Player} from './Player';
 import {v4 as uuidv4} from 'uuid';
-
-export enum GameState {
-  WAITING_FOR_PLAYERS = 'waiting for players',
-  WAITING_FOR_START = 'waiting for start',
-  ACTIVE = 'active',
-  PLAYER_MISSING = 'player missing',
-  WAITING_FOR_RESTART = 'waiting for restart',
-  FINISHED = 'finished',
-}
-
-export interface CardGameData extends CardGameInfo {
-  players: PlayerData[];
-}
-
-export interface PlayerInfo {
-  name: string;
-  position: number;
-  isReady: boolean;
-  leftTable: boolean;
-}
-
-export interface CardGameRules {
-  players: number;
-}
-
-export interface PlayerData extends PlayerInfo {
-  player: Player;
-  hand: Card[];
-}
-
-export interface CardGameInfo {
-  id: string;
-  gameState: GameState;
-  players: PlayerInfo[];
-  rules: CardGameRules;
-}
+import {
+  CardGameData,
+  CardGameInfo,
+  GameState,
+  PlayerData,
+  PlayerInfo,
+} from './types';
 
 export abstract class CardGame {
   protected gameData: CardGameData;

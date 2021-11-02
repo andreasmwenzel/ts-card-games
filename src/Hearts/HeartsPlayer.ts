@@ -1,6 +1,7 @@
 import {Suit, Card, two, clubs, hearts, Rank} from 'ts-cards';
 import {Player} from '../Player';
-import {Hearts, HeartsPlayerData} from './Hearts';
+import {Hearts} from './Hearts';
+import {HeartsPlayerData} from './types';
 
 export class HeartsPlayer extends Player {
   protected _game?: Hearts;

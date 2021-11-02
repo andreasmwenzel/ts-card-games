@@ -1,12 +1,4 @@
 import {
-  CardGame,
-  CardGameInfo,
-  GameState,
-  CardGameRules,
-  PlayerData,
-  PlayerInfo,
-} from '../CardGame';
-import {
   Suit,
   Card,
   Deck,
@@ -19,87 +11,19 @@ import {
   Rank,
 } from 'ts-cards';
 import {v4 as uuidv4} from 'uuid';
+import {CardGame} from '..';
 import {CardGameTrick} from '../mechanics/CardGameTrick';
+import {GameState} from '../types';
 import {HeartsPlayer} from './HeartsPlayer';
-
-export enum HeartsGamePhase {
-  DEAL = 'Deal',
-  PASS = 'Pass',
-  PLAY = 'Play',
-}
-export enum HeartsPassDirection {
-  LEFT = 'Left',
-  RIGHT = 'Right',
-  ACROSS = 'Across',
-  KEEP = 'Keep',
-}
-export function nextPassDirection(
-  dir: HeartsPassDirection
-): HeartsPassDirection {
-  switch (dir) {
-    case HeartsPassDirection.LEFT:
-      return HeartsPassDirection.RIGHT;
-    case HeartsPassDirection.RIGHT:
-      return HeartsPassDirection.ACROSS;
-    case HeartsPassDirection.ACROSS:
-      return HeartsPassDirection.KEEP;
-    default:
-      return HeartsPassDirection.LEFT;
-  }
-}
-
-export interface HeartsGameRules extends CardGameRules {
-  players: number;
-  queenBreaksHearts: boolean;
-  passingCount: number;
-  playTo: number;
-}
-
-export interface HeartsPlayerData extends PlayerData {
-  player: HeartsPlayer;
-  score: number[];
-  round: HeartsPlayerRoundData;
-}
-
-export interface HeartsPlayerRoundData extends HeartsPlayerRoundInfo {
-  cardsDealt: Card[];
-  cardsPassed: Card[];
-  cardsReceived: Card[];
-}
-
-export interface HeartsPlayerRoundInfo {
-  hasPassed: boolean;
-  points: number;
-  cardsTaken: Card[];
-  cardsPlayed: Card[];
-}
-
-export interface HeartsPlayerInfo extends PlayerInfo {
-  score: number[];
-  round: HeartsPlayerRoundInfo;
-}
-
-export interface HeartsGameInfo extends CardGameInfo {
-  gamePhase: HeartsGamePhase;
-  passDirection: HeartsPassDirection;
-  players: HeartsPlayerInfo[];
-  rules: HeartsGameRules;
-  round: HeartsGameRoundInfo;
-}
-
-export interface HeartsGameRoundInfo {
-  positionToLead: number;
-  positionToPlay: number;
-  firstTrick: boolean;
-  heartsBroken: boolean;
-}
-
-export interface HeartsGameData extends HeartsGameInfo {
-  gamePhase: HeartsGamePhase;
-  players: HeartsPlayerData[];
-  deck: Deck;
-  dealer: number;
-}
+import {
+  HeartsGameData,
+  HeartsGameInfo,
+  HeartsGamePhase,
+  HeartsPassDirection,
+  HeartsPlayerData,
+  HeartsPlayerInfo,
+} from './types';
+import {nextPassDirection} from './utils';
 
 export class Hearts extends CardGame {
   protected gameData: HeartsGameData;

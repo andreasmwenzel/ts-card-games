@@ -1,5 +1,6 @@
 //"use strict";
-import {HeartsPlayer, Hearts, GameState, PlayerInfo} from '../index';
+import {Hearts, HeartsPlayer} from '..';
+import {GameState, PlayerInfo} from '../types';
 
 let game: Hearts;
 const p0 = new HeartsPlayer('joe', '0');
