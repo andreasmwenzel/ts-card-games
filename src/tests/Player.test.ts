@@ -6,7 +6,7 @@ import {HeartsPlayer} from '..';
 describe('Setting Up a game', () => {
   //const game = new Hearts('Hearts1');
 
-  const p1 = new HeartsPlayer('joe', '1');
+  const p1 = new HeartsPlayer({name: 'joe', id: '1'});
   test('constructing a player', () => {
     expect(p1.name).toEqual('joe');
     expect(p1.id).toEqual('1');

@@ -3,10 +3,10 @@ import {Hearts, HeartsPlayer} from '..';
 import {GameState, PlayerInfo} from '../types';
 
 let game: Hearts;
-const p0 = new HeartsPlayer('joe', '0');
-const p1 = new HeartsPlayer('jim', '1');
-const p2 = new HeartsPlayer('jessica', '2');
-const p3 = new HeartsPlayer('julie', '3');
+const p0 = new HeartsPlayer({name: 'joe', id: '0'});
+const p1 = new HeartsPlayer({name: 'jim', id: '1'});
+const p2 = new HeartsPlayer({name: 'jessica', id: '2'});
+const p3 = new HeartsPlayer({name: 'julie', id: '3'});
 
 const p0Info: PlayerInfo = {
   name: p0.name,
@@ -37,9 +37,9 @@ const playersInfo: PlayerInfo[] = [p0Info, p1Info, p2Info, p3Info]; //track info
 let expectedPlayers: PlayerInfo[] = []; //track info by what table should expect
 
 describe('Game Setup', () => {
-  game = new Hearts('Hearts1');
+  game = new Hearts({name: 'Hearts1'});
   test('game info', () => {
-    expect(game).toHaveProperty('id', 'Hearts1');
+    expect(game).toHaveProperty('name', 'Hearts1');
     expect(game.maxPlayers).toEqual(4);
     expect(game.gameState).toEqual(GameState.WAITING_FOR_PLAYERS);
     expect(game.players).toEqual([]);
@@ -194,7 +194,7 @@ describe('Before game fills up', () => {
 });
 describe('Game is full but not started', () => {
   test('game info', () => {
-    expect(game).toHaveProperty('id', 'Hearts1');
+    expect(game).toHaveProperty('name', 'Hearts1');
     expect(game.maxPlayers).toEqual(4);
     expect(game.gameState).toEqual(GameState.WAITING_FOR_START);
   });
@@ -203,7 +203,7 @@ describe('Game is full but not started', () => {
     expect(game.playerHand(p1)).toEqual([]);
   });
   test('add player', () => {
-    const p5 = new HeartsPlayer('june', '5');
+    const p5 = new HeartsPlayer({name: 'june'});
     expect(() => {
       game.addPlayer(p5);
     }).toThrow(/Join Error: Game is full/);
@@ -297,14 +297,14 @@ describe('Game is full but not started', () => {
 });
 describe('Active game', () => {
   test('game info', () => {
-    expect(game).toHaveProperty('id', 'Hearts1');
+    expect(game).toHaveProperty('name', 'Hearts1');
     expect(game.maxPlayers).toEqual(4);
     expect(game.gameState).toEqual(GameState.ACTIVE);
   });
 
   test('add player', () => {
     expect(() => {
-      const p5 = new HeartsPlayer('june', '5');
+      const p5 = new HeartsPlayer({name: 'june', id: '5'});
       game.addPlayer(p5);
     }).toThrow(/Game is full/);
   });
@@ -335,14 +335,14 @@ describe('Active game', () => {
 
 describe('when a player has left', () => {
   test('game info', () => {
-    expect(game).toHaveProperty('id', 'Hearts1');
+    expect(game).toHaveProperty('name', 'Hearts1');
     expect(game.maxPlayers).toEqual(4);
     expect(game.gameState).toEqual(GameState.PLAYER_MISSING);
   });
 
   test('a player not at table tries to join', () => {
     expect(() => {
-      const p5 = new HeartsPlayer('june', '5');
+      const p5 = new HeartsPlayer({name: 'june', id: '5'});
       game.addPlayer(p5);
     }).toThrow(/Game is full/);
   });
@@ -391,13 +391,13 @@ describe('when a player has left', () => {
 
 describe('after players rejoin', () => {
   test('game info', () => {
-    expect(game).toHaveProperty('id', 'Hearts1');
+    expect(game).toHaveProperty('name', 'Hearts1');
     expect(game.maxPlayers).toEqual(4);
     expect(game.gameState).toEqual(GameState.WAITING_FOR_RESTART);
   });
 
   test('add player', () => {
-    const p5 = new HeartsPlayer('june', '5');
+    const p5 = new HeartsPlayer({name: 'june', id: '5'});
     expect(() => {
       game.addPlayer(p5);
     }).toThrow(/Join Error: Game is full/);

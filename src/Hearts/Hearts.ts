@@ -11,6 +11,7 @@ import {
   Rank,
 } from 'ts-cards';
 import {v4 as uuidv4} from 'uuid';
+import {HeartsParams} from '.';
 import {CardGame} from '..';
 import {CardGameTrick} from '../mechanics/CardGameTrick';
 import {GameState} from '../types';
@@ -29,8 +30,8 @@ export class Hearts extends CardGame {
   protected gameData: HeartsGameData;
   private currentTrick: CardGameTrick<HeartsPlayerData> | null = null;
 
-  constructor(id?: string, data?: HeartsGameData) {
-    super(id, data);
+  constructor({id, name, data}: HeartsParams) {
+    super({id, name, data});
 
     if (data) {
       this.gameData = data;
@@ -53,6 +54,7 @@ export class Hearts extends CardGame {
     } else {
       this.gameData = {
         id: id ? id : uuidv4(),
+        name: name ? name : uuidv4(),
         players: [],
         gameState: GameState.WAITING_FOR_PLAYERS,
         gamePhase: HeartsGamePhase.DEAL,
@@ -81,6 +83,7 @@ export class Hearts extends CardGame {
   public get gameInfo(): HeartsGameInfo {
     const info = {
       id: this.gameData.id,
+      name: this.gameData.name,
       gameState: this.gameData.gameState,
       gamePhase: this.gameData.gamePhase,
       passDirection: this.passDirection,

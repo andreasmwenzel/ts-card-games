@@ -14,12 +14,12 @@ Hearts, Pinochle and more in typescript
 ### Examples
 
 ```
-const game = new Hearts("Hearts1");
+const game = new Hearts({name: "Hearts1"});
 
-const p1 = new HeartsPlayer("joe", "1");
-const p2 = new HeartsPlayer("jim", "2");
-const p3 = new HeartsPlayer("jessica", "3");
-const p4 = new HeartsPlayer("julie", "4")
+const p1 = new HeartsPlayer({name: "joe"});
+const p2 = new HeartsPlayer({name: "jim"});
+const p3 = new HeartsPlayer({name:"jessica"});
+const p4 = new HeartsPlayer({name:"julie"});
 
 p1.joinGame(game,0)
 p2.joinGame(game,1)

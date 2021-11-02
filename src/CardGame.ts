@@ -7,17 +7,19 @@ import {
   GameState,
   PlayerData,
   PlayerInfo,
+  CardGameParams,
 } from './types';
 
 export abstract class CardGame {
   protected gameData: CardGameData;
 
-  constructor(id?: string, data?: CardGameData) {
+  constructor({id, name, data}: CardGameParams) {
     if (data) {
       this.gameData = data;
     } else {
       this.gameData = {
         id: id ? id : uuidv4(),
+        name: name ? name : uuidv4(),
         players: [],
         gameState: GameState.WAITING_FOR_PLAYERS,
         rules: {
@@ -35,6 +37,10 @@ export abstract class CardGame {
   }
   public get id(): string {
     return this.gameData.id;
+  }
+
+  public get name(): string {
+    return this.gameData.name;
   }
 
   public get players(): ReadonlyArray<PlayerInfo> {

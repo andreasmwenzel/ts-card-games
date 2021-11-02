@@ -1,4 +1,5 @@
 import {Suit, Card, two, clubs, hearts, Rank} from 'ts-cards';
+import {PlayerParams} from '..';
 import {Player} from '../Player';
 import {Hearts} from './Hearts';
 import {HeartsPlayerData} from './types';
@@ -10,8 +11,8 @@ export class HeartsPlayer extends Player {
     return this.hand?.length;
   }
 
-  constructor(name: string, id: string) {
-    super(name, id);
+  constructor({name, id}: PlayerParams) {
+    super({name, id});
   }
 
   public playCard(card: Card) {

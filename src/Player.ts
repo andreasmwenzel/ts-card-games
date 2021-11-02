@@ -1,5 +1,7 @@
 import {CardGame} from './CardGame';
 import {Card} from 'ts-cards';
+import {v4 as uuidv4} from 'uuid';
+import {PlayerParams} from '.';
 
 export abstract class Player {
   public name: string;
@@ -26,9 +28,9 @@ export abstract class Player {
   get game(): string | undefined {
     return this._game?.id;
   }
-  constructor(name: string, id: string) {
+  constructor({name, id}: PlayerParams) {
     this.name = name;
-    this.id = id;
+    this.id = id ? id : uuidv4();
   }
 
   public leaveGame() {

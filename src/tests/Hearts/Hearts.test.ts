@@ -85,9 +85,10 @@ let twoOfClubs: Card,
   aOfHearts: Card;
 
 describe('Hearts game', () => {
-  game = new Hearts(gameID);
+  game = new Hearts({id: gameID, name: gameID});
   expectedGameInfo = {
     id: gameID,
+    name: gameID,
     gameState: GameState.WAITING_FOR_PLAYERS,
     gamePhase: HeartsGamePhase.DEAL,
     players: [],
@@ -110,7 +111,7 @@ describe('Hearts game', () => {
     expect(game.gameInfo).toEqual(expectedGameInfo);
   });
 
-  p0 = new HeartsPlayer('julie', '0');
+  p0 = new HeartsPlayer({name: 'julie', id: '0'});
   p0Info = {
     name: 'julie',
     position: 0,
@@ -125,7 +126,7 @@ describe('Hearts game', () => {
     score: [],
   };
 
-  p1 = new HeartsPlayer('joe', '1');
+  p1 = new HeartsPlayer({name: 'joe', id: '1'});
   p1Info = {
     name: 'joe',
     position: 1,
@@ -140,7 +141,7 @@ describe('Hearts game', () => {
     score: [],
   };
 
-  p2 = new HeartsPlayer('jim', '2');
+  p2 = new HeartsPlayer({name: 'jim', id: '2'});
   p2Info = {
     name: 'jim',
     position: 2,
@@ -155,7 +156,7 @@ describe('Hearts game', () => {
     score: [],
   };
 
-  p3 = new HeartsPlayer('jessica', '3');
+  p3 = new HeartsPlayer({name: 'jessica', id: '3'});
   p3Info = {
     name: 'jessica',
     position: 3,

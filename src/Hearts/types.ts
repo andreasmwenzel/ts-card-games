@@ -65,3 +65,9 @@ export interface HeartsGameData extends HeartsGameInfo {
   deck: Deck;
   dealer: number;
 }
+
+export interface HeartsParams {
+  id?: string;
+  name?: string;
+  data?: HeartsGameData;
+}

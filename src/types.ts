@@ -30,9 +30,21 @@ export interface PlayerData extends PlayerInfo {
   hand: Card[];
 }
 
+export interface CardGameParams {
+  id?: string;
+  name?: string;
+  data?: CardGameData;
+}
+
 export interface CardGameInfo {
   id: string;
+  name: string;
   gameState: GameState;
   players: PlayerInfo[];
   rules: CardGameRules;
+}
+
+export interface PlayerParams {
+  name: string;
+  id?: string;
 }

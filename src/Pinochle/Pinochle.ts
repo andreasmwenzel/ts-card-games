@@ -3,14 +3,15 @@ import {CardGame} from '../CardGame';
 import {Player} from '../Player';
 import {CardGameInfo, PlayerData} from '../types';
 import {PinochlePlayer} from './PinochlePlayer';
+import {PinochleParams} from './types';
 
 export class Pinochle extends CardGame {
   protected _game?: Pinochle;
 
   protected playerData: PlayerData[] = [];
 
-  constructor(id: string) {
-    super(id);
+  constructor({id, name, data}: PinochleParams) {
+    super({id, name, data});
   }
   public get gameInfo(): CardGameInfo {
     return this.gameInfo;
