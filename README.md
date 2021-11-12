@@ -16,17 +16,15 @@ Hearts, Pinochle and more in typescript
 ```
 const game = new Hearts({name: "Hearts1"});
 
-const p1 = new HeartsPlayer({name: "joe"});
-const p2 = new HeartsPlayer({name: "jim"});
-const p3 = new HeartsPlayer({name:"jessica"});
-const p4 = new HeartsPlayer({name:"julie"});
+const p1 = game.addPlayer("joe");
+const p2 = game.addPlayer("jim");
+const p3 = game.addPlayer({name:"jess"});
+const p4 = game.addPlayer("jules");
 
-p1.joinGame(game,0)
-p2.joinGame(game,1)
-p3.joinGame(game,2)
-p4.joinGame(game,3)
-
-game.startGame();
+p1.setReady(true);
+p2.setReady(true);
+p3.setReady(true);
+p4.setReady(true);
 ```
 
 ## Development

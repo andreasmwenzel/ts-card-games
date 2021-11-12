@@ -6,9 +6,15 @@ import {PlayerParams} from '.';
 export abstract class Player {
   public name: string;
   public readonly id: string;
-
   protected abstract _game?: CardGame;
 
+  constructor({name, id}: PlayerParams, game: CardGame) {
+    this.setGame(game);
+    this.name = name;
+    this.id = id ? id : uuidv4();
+  }
+
+  abstract setGame(game: CardGame | undefined): void;
   get position() {
     return this._game?.playerPosition(this);
   }
@@ -21,33 +27,14 @@ export abstract class Player {
     return isReady ? isReady : false;
   }
 
-  set ready(ready: boolean) {
+  setReady(ready = true) {
     this._game?.playerReady(this, ready);
   }
-
-  get game(): string | undefined {
+  get gameId(): string | undefined {
     return this._game?.id;
-  }
-  constructor({name, id}: PlayerParams) {
-    this.name = name;
-    this.id = id ? id : uuidv4();
   }
 
   public leaveGame() {
     this._game?.removePlayer(this);
-  }
-
-  public joinGame(game: CardGame, position = -1) {
-    game.addPlayer(this, position);
-    this._game = game;
-  }
-
-  public movePosition(position: number, tradePositions = false) {
-    if (this._game === undefined) {
-      throw new Error(
-        `Move Position Error: Player ${this.name} is not assigned to a game`
-      );
-    }
-    this._game?.movePosition(this, position, tradePositions);
   }
 }

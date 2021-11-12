@@ -5,11 +5,13 @@ export enum GameState {
   WAITING_FOR_PLAYERS = 'waiting for players',
   WAITING_FOR_START = 'waiting for start',
   ACTIVE = 'active',
-  PLAYER_MISSING = 'player missing',
   WAITING_FOR_RESTART = 'waiting for restart',
   FINISHED = 'finished',
 }
 
+export interface CardGameRules {
+  players: number;
+}
 export interface CardGameData extends CardGameInfo {
   players: PlayerData[];
 }
@@ -19,10 +21,6 @@ export interface PlayerInfo {
   position: number;
   isReady: boolean;
   leftTable: boolean;
-}
-
-export interface CardGameRules {
-  players: number;
 }
 
 export interface PlayerData extends PlayerInfo {

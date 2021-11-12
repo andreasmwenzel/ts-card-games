@@ -22,12 +22,15 @@ const gameID = 'Hearts1';
 let game: Hearts;
 let expectedGameInfo: HeartsGameInfo;
 
-let p0: HeartsPlayer, p1: HeartsPlayer, p2: HeartsPlayer, p3: HeartsPlayer;
+let jules: HeartsPlayer,
+  joe: HeartsPlayer,
+  jim: HeartsPlayer,
+  jess: HeartsPlayer;
 
-let p0Info: HeartsPlayerInfo,
-  p1Info: HeartsPlayerInfo,
-  p2Info: HeartsPlayerInfo,
-  p3Info: HeartsPlayerInfo;
+let julesInfo: HeartsPlayerInfo,
+  joeInfo: HeartsPlayerInfo,
+  jimInfo: HeartsPlayerInfo,
+  jessInfo: HeartsPlayerInfo;
 
 let testPlayers: HeartsPlayer[];
 
@@ -111,8 +114,7 @@ describe('Hearts game', () => {
     expect(game.gameInfo).toEqual(expectedGameInfo);
   });
 
-  p0 = new HeartsPlayer({name: 'julie', id: '0'});
-  p0Info = {
+  julesInfo = {
     name: 'julie',
     position: 0,
     isReady: false,
@@ -126,8 +128,7 @@ describe('Hearts game', () => {
     score: [],
   };
 
-  p1 = new HeartsPlayer({name: 'joe', id: '1'});
-  p1Info = {
+  joeInfo = {
     name: 'joe',
     position: 1,
     isReady: false,
@@ -141,8 +142,7 @@ describe('Hearts game', () => {
     score: [],
   };
 
-  p2 = new HeartsPlayer({name: 'jim', id: '2'});
-  p2Info = {
+  jimInfo = {
     name: 'jim',
     position: 2,
     isReady: false,
@@ -156,8 +156,7 @@ describe('Hearts game', () => {
     score: [],
   };
 
-  p3 = new HeartsPlayer({name: 'jessica', id: '3'});
-  p3Info = {
+  jessInfo = {
     name: 'jessica',
     position: 3,
     isReady: false,
@@ -171,31 +170,39 @@ describe('Hearts game', () => {
     score: [],
   };
 
-  testPlayers = [p0, p1, p2, p3];
+  testPlayers = [];
   test('add players', () => {
-    p1.joinGame(game, 1);
+    joe = game.addPlayer({name: 'joe', id: '1'}, 1);
+    testPlayers.push(joe);
 
-    expectedGameInfo.players.push(p1Info);
+    expectedGameInfo.players.push(joeInfo);
     expect(game.gameInfo).toEqual(expectedGameInfo);
 
-    p2.joinGame(game, 2);
-    expectedGameInfo.players.push(p2Info);
+    jim = game.addPlayer({name: 'jim', id: '2'}, 2);
+    expectedGameInfo.players.push(jimInfo);
 
-    p3.joinGame(game, 3);
-    expectedGameInfo.players.push(p3Info);
+    jess = game.addPlayer({name: 'jessica', id: '3'}, 3);
 
-    p0.joinGame(game);
-    expectedGameInfo.players.push(p0Info);
+    expectedGameInfo.players.push(jessInfo);
+
+    jules = game.addPlayer({name: 'julie'});
+    expectedGameInfo.players.push(julesInfo);
     expectedGameInfo.gameState = GameState.WAITING_FOR_START;
     expect(game.gameInfo).toEqual(expectedGameInfo);
+
+    testPlayers = [jules, joe, jim, jess];
   });
 
   test('starting the game', () => {
-    p1.ready = true;
-    p2.ready = true;
-    p3.ready = true;
+    joe.setReady(true);
+    joeInfo.isReady = true;
+    jim.setReady(true);
+    jimInfo.isReady = true;
+    jess.setReady(true);
+    jessInfo.isReady = true;
     seedrandom('hearts', {global: true});
-    p0.ready = true;
+    jules.setReady(true);
+    julesInfo.isReady = true;
     expectedGameInfo.players = expectedGameInfo.players.sort(
       (a, b) => a.position - b.position
     );
@@ -205,8 +212,8 @@ describe('Hearts game', () => {
 
     expect(game.gameInfo).toEqual(expectedGameInfo);
 
-    expect(p0.handLength).toEqual(13);
-    expect(p0.hand.map(a => a.description)).toStrictEqual([
+    expect(jules.handLength).toEqual(13);
+    expect(jules.hand.map(a => a.description)).toStrictEqual([
       '3 of hearts',
       'K of spades',
       '6 of hearts',
@@ -221,20 +228,20 @@ describe('Hearts game', () => {
       '4 of diamonds',
       '9 of hearts',
     ]);
-    threeOfHearts = p0.hand[0];
-    kOfSpades = p0.hand[1];
-    sixOfHearts = p0.hand[2];
-    sixOfDiamonds = p0.hand[3];
-    fiveOfHearts = p0.hand[4];
-    fourOfSpades = p0.hand[5];
-    sevenOfSpades = p0.hand[6];
-    qOfHearts = p0.hand[7];
-    aOfDiamonds = p0.hand[8];
-    twoOfDiamonds = p0.hand[9];
-    tenOfDiamonds = p0.hand[10];
-    fourOfDiamonds = p0.hand[11];
-    nineOfHearts = p0.hand[12];
-    expect(game.getPlayerData(p0).round.cardsDealt).toStrictEqual([
+    threeOfHearts = jules.hand[0];
+    kOfSpades = jules.hand[1];
+    sixOfHearts = jules.hand[2];
+    sixOfDiamonds = jules.hand[3];
+    fiveOfHearts = jules.hand[4];
+    fourOfSpades = jules.hand[5];
+    sevenOfSpades = jules.hand[6];
+    qOfHearts = jules.hand[7];
+    aOfDiamonds = jules.hand[8];
+    twoOfDiamonds = jules.hand[9];
+    tenOfDiamonds = jules.hand[10];
+    fourOfDiamonds = jules.hand[11];
+    nineOfHearts = jules.hand[12];
+    expect(game.getPlayerData(jules).round.cardsDealt).toStrictEqual([
       threeOfHearts,
       kOfSpades,
       sixOfHearts,
@@ -250,8 +257,8 @@ describe('Hearts game', () => {
       nineOfHearts,
     ]);
 
-    expect(p1.handLength).toEqual(13);
-    expect(p1.hand.map(a => a.description)).toStrictEqual([
+    expect(joe.handLength).toEqual(13);
+    expect(joe.hand.map(a => a.description)).toStrictEqual([
       '9 of clubs',
       '8 of spades',
       '5 of spades',
@@ -266,20 +273,20 @@ describe('Hearts game', () => {
       '9 of diamonds',
       '6 of spades',
     ]);
-    nineOfClubs = p1.hand[0];
-    eightOfSpades = p1.hand[1];
-    fiveOfSpades = p1.hand[2];
-    qOfDiamonds = p1.hand[3];
-    fourOfHearts = p1.hand[4];
-    kOfHearts = p1.hand[5];
-    sevenOfDiamonds = p1.hand[6];
-    fourOfClubs = p1.hand[7];
-    jOfClubs = p1.hand[8];
-    threeOfClubs = p1.hand[9];
-    sixOfClubs = p1.hand[10];
-    nineOfDiamonds = p1.hand[11];
-    sixOfSpades = p1.hand[12];
-    expect(game.getPlayerData(p1).round.cardsDealt).toStrictEqual([
+    nineOfClubs = joe.hand[0];
+    eightOfSpades = joe.hand[1];
+    fiveOfSpades = joe.hand[2];
+    qOfDiamonds = joe.hand[3];
+    fourOfHearts = joe.hand[4];
+    kOfHearts = joe.hand[5];
+    sevenOfDiamonds = joe.hand[6];
+    fourOfClubs = joe.hand[7];
+    jOfClubs = joe.hand[8];
+    threeOfClubs = joe.hand[9];
+    sixOfClubs = joe.hand[10];
+    nineOfDiamonds = joe.hand[11];
+    sixOfSpades = joe.hand[12];
+    expect(game.getPlayerData(joe).round.cardsDealt).toStrictEqual([
       nineOfClubs,
       eightOfSpades,
       fiveOfSpades,
@@ -295,8 +302,8 @@ describe('Hearts game', () => {
       sixOfSpades,
     ]);
 
-    expect(p2.handLength).toEqual(13);
-    expect(p2.hand.map(a => a.description)).toStrictEqual([
+    expect(jim.handLength).toEqual(13);
+    expect(jim.hand.map(a => a.description)).toStrictEqual([
       'Q of clubs',
       '2 of clubs',
       '2 of hearts',
@@ -311,20 +318,20 @@ describe('Hearts game', () => {
       '3 of diamonds',
       '2 of spades',
     ]);
-    qOfClubs = p2.hand[0];
-    twoOfClubs = p2.hand[1];
-    twoOfHearts = p2.hand[2];
-    fiveOfClubs = p2.hand[3];
-    jOfHearts = p2.hand[4];
-    tenOfSpades = p2.hand[5];
-    aOfHearts = p2.hand[6];
-    sevenOfHearts = p2.hand[7];
-    kOfClubs = p2.hand[8];
-    tenOfClubs = p2.hand[9];
-    threeOfSpades = p2.hand[10];
-    threeOfDiamonds = p2.hand[11];
-    twoOfSpades = p2.hand[12];
-    expect(game.getPlayerData(p2).round.cardsDealt).toStrictEqual([
+    qOfClubs = jim.hand[0];
+    twoOfClubs = jim.hand[1];
+    twoOfHearts = jim.hand[2];
+    fiveOfClubs = jim.hand[3];
+    jOfHearts = jim.hand[4];
+    tenOfSpades = jim.hand[5];
+    aOfHearts = jim.hand[6];
+    sevenOfHearts = jim.hand[7];
+    kOfClubs = jim.hand[8];
+    tenOfClubs = jim.hand[9];
+    threeOfSpades = jim.hand[10];
+    threeOfDiamonds = jim.hand[11];
+    twoOfSpades = jim.hand[12];
+    expect(game.getPlayerData(jim).round.cardsDealt).toStrictEqual([
       qOfClubs,
       twoOfClubs,
       twoOfHearts,
@@ -340,8 +347,8 @@ describe('Hearts game', () => {
       twoOfSpades,
     ]);
 
-    expect(p3.handLength).toEqual(13);
-    expect(p3.hand.map(a => a.description)).toStrictEqual([
+    expect(jess.handLength).toEqual(13);
+    expect(jess.hand.map(a => a.description)).toStrictEqual([
       'A of clubs',
       'K of diamonds',
       'Q of spades',
@@ -356,20 +363,20 @@ describe('Hearts game', () => {
       '8 of hearts',
       '5 of diamonds',
     ]);
-    aOfClubs = p3.hand[0];
-    kOfDiamonds = p3.hand[1];
-    qOfSpades = p3.hand[2];
-    sevenOfClubs = p3.hand[3];
-    eightOfClubs = p3.hand[4];
-    tenOfHearts = p3.hand[5];
-    jOfSpades = p3.hand[6];
-    nineOfSpades = p3.hand[7];
-    eightOfDiamonds = p3.hand[8];
-    jOfDiamonds = p3.hand[9];
-    aOfSpades = p3.hand[10];
-    eightOfHearts = p3.hand[11];
-    fiveOfDiamonds = p3.hand[12];
-    expect(game.getPlayerData(p3).round.cardsDealt).toStrictEqual([
+    aOfClubs = jess.hand[0];
+    kOfDiamonds = jess.hand[1];
+    qOfSpades = jess.hand[2];
+    sevenOfClubs = jess.hand[3];
+    eightOfClubs = jess.hand[4];
+    tenOfHearts = jess.hand[5];
+    jOfSpades = jess.hand[6];
+    nineOfSpades = jess.hand[7];
+    eightOfDiamonds = jess.hand[8];
+    jOfDiamonds = jess.hand[9];
+    aOfSpades = jess.hand[10];
+    eightOfHearts = jess.hand[11];
+    fiveOfDiamonds = jess.hand[12];
+    expect(game.getPlayerData(jess).round.cardsDealt).toStrictEqual([
       aOfClubs,
       kOfDiamonds,
       qOfSpades,
@@ -391,57 +398,59 @@ describe('Hearts game', () => {
     expect(game.cardPoints(qOfSpades)).toBe(13);
     expect(game.cardPoints(aOfHearts)).toBe(1);
 
-    expect(p0.hasSuit(hearts)).toBe(true);
-    expect(p0.hasOnlyHearts()).toBe(false);
-    expect(p0.hasCard(four, spades)).toBe(true);
-    expect(p2.hasCard(four, spades)).toBe(false);
-    expect(p0.hasTwoOfClubs()).toBe(false);
-    expect(p2.hasTwoOfClubs()).toBe(true);
+    expect(jules.hasSuit(hearts)).toBe(true);
+    expect(jules.hasOnlyHearts()).toBe(false);
+    expect(jules.hasCard(four, spades)).toBe(true);
+    expect(jim.hasCard(four, spades)).toBe(false);
+    expect(jules.hasTwoOfClubs()).toBe(false);
+    expect(jim.hasTwoOfClubs()).toBe(true);
 
-    expect(game.getPlayerData(p0).round.cardsDealt).toStrictEqual(p0.hand);
-    expect(game.getPlayerData(p1).round.cardsDealt).toStrictEqual(p1.hand);
-    expect(game.getPlayerData(p2).round.cardsDealt).toStrictEqual(p2.hand);
-    expect(game.getPlayerData(p3).round.cardsDealt).toStrictEqual(p3.hand);
+    expect(game.getPlayerData(jules).round.cardsDealt).toStrictEqual(
+      jules.hand
+    );
+    expect(game.getPlayerData(joe).round.cardsDealt).toStrictEqual(joe.hand);
+    expect(game.getPlayerData(jim).round.cardsDealt).toStrictEqual(jim.hand);
+    expect(game.getPlayerData(jess).round.cardsDealt).toStrictEqual(jess.hand);
   });
 
   test('passing cards', () => {
     expect(() => {
-      p0.playCard(p0.hand[0]);
+      jules.playCard(jules.hand[0]);
     }).toThrow(/Playing Error: Not in the playing phase/);
     expect(() => {
-      p0.passCards(p0.hand.slice(0, 4));
+      jules.passCards(jules.hand.slice(0, 4));
     }).toThrow(/Passing Error: Must pass/);
 
     expect(() => {
-      p0.passCards(p1.hand.slice(0, 3));
+      jules.passCards(joe.hand.slice(0, 3));
     }).toThrow(/Passing Error: player does not have that card/);
 
     const p0Pass = [kOfSpades, qOfHearts, aOfDiamonds];
-    p0.passCards(p0Pass);
-    expect(game.getPlayerData(p0).round.cardsPassed).toStrictEqual(p0Pass);
-    p0Info.round.hasPassed = true;
+    jules.passCards(p0Pass);
+    expect(game.getPlayerData(jules).round.cardsPassed).toStrictEqual(p0Pass);
+    julesInfo.round.hasPassed = true;
 
     const p1Pass = [qOfDiamonds, kOfHearts, nineOfDiamonds];
-    p1.passCards(p1Pass);
-    expect(game.getPlayerData(p1).round.cardsPassed).toStrictEqual(p1Pass);
-    p1Info.round.hasPassed = true;
+    joe.passCards(p1Pass);
+    expect(game.getPlayerData(joe).round.cardsPassed).toStrictEqual(p1Pass);
+    joeInfo.round.hasPassed = true;
 
     const p2Pass = [qOfClubs, aOfHearts, kOfClubs];
-    p2.passCards(p2Pass);
-    expect(game.getPlayerData(p2).round.cardsPassed).toStrictEqual(p2Pass);
-    p2Info.round.hasPassed = true;
+    jim.passCards(p2Pass);
+    expect(game.getPlayerData(jim).round.cardsPassed).toStrictEqual(p2Pass);
+    jimInfo.round.hasPassed = true;
 
     const p3Pass = [kOfDiamonds, tenOfHearts, eightOfHearts];
-    p3.passCards(p3Pass);
-    expect(game.getPlayerData(p3).round.cardsPassed).toStrictEqual(p3Pass);
-    p3Info.round.hasPassed = true;
+    jess.passCards(p3Pass);
+    expect(game.getPlayerData(jess).round.cardsPassed).toStrictEqual(p3Pass);
+    jessInfo.round.hasPassed = true;
 
     expectedGameInfo.gamePhase = HeartsGamePhase.PLAY;
     expectedGameInfo.round.positionToLead = 2;
     expectedGameInfo.round.positionToPlay = 2;
     expectedGameInfo.round.firstTrick = true;
     expect(game.gameInfo).toEqual(expectedGameInfo);
-    expect([...p0.hand].sort(sortHeartsHand)).toStrictEqual([
+    expect([...jules.hand].sort(sortHeartsHand)).toStrictEqual([
       fourOfSpades,
       sevenOfSpades,
       twoOfDiamonds,
@@ -456,7 +465,7 @@ describe('Hearts game', () => {
       nineOfHearts,
       tenOfHearts,
     ]);
-    expect([...p1.hand].sort(sortHeartsHand)).toStrictEqual([
+    expect([...joe.hand].sort(sortHeartsHand)).toStrictEqual([
       threeOfClubs,
       fourOfClubs,
       sixOfClubs,
@@ -471,7 +480,7 @@ describe('Hearts game', () => {
       fourOfHearts,
       qOfHearts,
     ]);
-    expect([...p2.hand].sort(sortHeartsHand)).toStrictEqual([
+    expect([...jim.hand].sort(sortHeartsHand)).toStrictEqual([
       twoOfClubs,
       fiveOfClubs,
       tenOfClubs,
@@ -486,7 +495,7 @@ describe('Hearts game', () => {
       jOfHearts,
       kOfHearts,
     ]);
-    expect([...p3.hand].sort(sortHeartsHand)).toStrictEqual([
+    expect([...jess.hand].sort(sortHeartsHand)).toStrictEqual([
       sevenOfClubs,
       eightOfClubs,
       qOfClubs,
@@ -502,59 +511,59 @@ describe('Hearts game', () => {
       aOfHearts,
     ]);
 
-    expect(p0.hasSuit(clubs)).toBe(false);
+    expect(jules.hasSuit(clubs)).toBe(false);
 
-    expect(game.getPlayerData(p0).round.cardsPassed).toStrictEqual(p0Pass);
-    expect(game.getPlayerData(p1).round.cardsPassed).toStrictEqual(p1Pass);
-    expect(game.getPlayerData(p2).round.cardsPassed).toStrictEqual(p2Pass);
-    expect(game.getPlayerData(p3).round.cardsPassed).toStrictEqual(p3Pass);
+    expect(game.getPlayerData(jules).round.cardsPassed).toStrictEqual(p0Pass);
+    expect(game.getPlayerData(joe).round.cardsPassed).toStrictEqual(p1Pass);
+    expect(game.getPlayerData(jim).round.cardsPassed).toStrictEqual(p2Pass);
+    expect(game.getPlayerData(jess).round.cardsPassed).toStrictEqual(p3Pass);
 
-    expect(game.getPlayerData(p0).round.cardsReceived).toStrictEqual(p3Pass);
-    expect(game.getPlayerData(p1).round.cardsReceived).toStrictEqual(p0Pass);
-    expect(game.getPlayerData(p2).round.cardsReceived).toStrictEqual(p1Pass);
-    expect(game.getPlayerData(p3).round.cardsReceived).toStrictEqual(p2Pass);
+    expect(game.getPlayerData(jules).round.cardsReceived).toStrictEqual(p3Pass);
+    expect(game.getPlayerData(joe).round.cardsReceived).toStrictEqual(p0Pass);
+    expect(game.getPlayerData(jim).round.cardsReceived).toStrictEqual(p1Pass);
+    expect(game.getPlayerData(jess).round.cardsReceived).toStrictEqual(p2Pass);
   });
   test('playing a round', () => {
     expect(() => {
       game.startNewRound();
     }).toThrow(/New Round Error: Not in the right Gamephase/);
     expect(() => {
-      p0.passCards([]);
+      jules.passCards([]);
     }).toThrow(/Passing Error: Not in the passing phase/);
     expect(() => {
-      p0.playCard(p0.hand[0]);
+      jules.playCard(jules.hand[0]);
     }).toThrow(/Playing Error: Not this player's turn/);
     expect(() => {
-      p2.playCard(p0.hand[0]);
+      jim.playCard(jules.hand[0]);
     }).toThrow(/Playing Error: player does not have that card/);
 
     expect(() => {
-      p2.playCard(p2.hand[1]);
+      jim.playCard(jim.hand[1]);
     }).toThrow(/Playing Error: first card must be a two of clubs/);
 
-    playCard(p2, twoOfClubs, p2Info);
+    playCard(jim, twoOfClubs, jimInfo);
     expectedGameInfo.round.positionToPlay = 3;
     expect(game.gameInfo).toEqual(expectedGameInfo);
 
     expect(() => {
-      p3.playCard(qOfSpades);
+      jess.playCard(qOfSpades);
     }).toThrow(/Playing Error: Must Follow Suit/);
     expect(() => {
-      p3.playCard(aOfHearts);
+      jess.playCard(aOfHearts);
     }).toThrow(/Playing Error: Must Follow Suit/);
 
-    playCard(p3, aOfClubs, p3Info);
+    playCard(jess, aOfClubs, jessInfo);
     expectedGameInfo.round.positionToPlay = 0;
     expect(game.gameInfo).toEqual(expectedGameInfo);
 
     expect(() => {
-      p0.playCard(p0.hand[0]);
+      jules.playCard(jules.hand[0]);
     }).toThrow(/Playing Error: Cannot play points of first trick/);
 
-    playCard(p0, sevenOfSpades, p0Info);
-    playCard(p1, sixOfClubs, p1Info);
+    playCard(jules, sevenOfSpades, julesInfo);
+    playCard(joe, sixOfClubs, joeInfo);
 
-    p3Info.round.cardsTaken.push(
+    jessInfo.round.cardsTaken.push(
       twoOfClubs,
       aOfClubs,
       sevenOfSpades,
@@ -570,15 +579,15 @@ describe('Hearts game', () => {
 
   test('breaking hearts', () => {
     expect(() => {
-      p3.playCard(aOfHearts);
+      jess.playCard(aOfHearts);
     }).toThrow(/Playing Error: Hearts has not been broken/);
 
-    playCard(p3, jOfDiamonds, p3Info);
-    playCard(p0, kOfDiamonds, p0Info);
-    playCard(p1, aOfDiamonds, p1Info);
-    playCard(p2, qOfDiamonds, p2Info);
+    playCard(jess, jOfDiamonds, jessInfo);
+    playCard(jules, kOfDiamonds, julesInfo);
+    playCard(joe, aOfDiamonds, joeInfo);
+    playCard(jim, qOfDiamonds, jimInfo);
 
-    p1Info.round.cardsTaken.push(
+    joeInfo.round.cardsTaken.push(
       jOfDiamonds,
       kOfDiamonds,
       aOfDiamonds,
@@ -589,26 +598,26 @@ describe('Hearts game', () => {
 
     expect(game.gameInfo).toStrictEqual(expectedGameInfo);
 
-    playCard(p1, sevenOfDiamonds, p1Info);
+    playCard(joe, sevenOfDiamonds, joeInfo);
     expectedGameInfo.round.positionToPlay = 2;
     expect(game.gameInfo).toStrictEqual(expectedGameInfo);
-    playCard(p2, nineOfDiamonds, p2Info);
-    playCard(p3, eightOfDiamonds, p3Info);
-    playCard(p0, tenOfDiamonds, p0Info);
+    playCard(jim, nineOfDiamonds, jimInfo);
+    playCard(jess, eightOfDiamonds, jessInfo);
+    playCard(jules, tenOfDiamonds, julesInfo);
 
-    p0Info.round.cardsTaken.push(
+    julesInfo.round.cardsTaken.push(
       sevenOfDiamonds,
       nineOfDiamonds,
       eightOfDiamonds,
       tenOfDiamonds
     );
 
-    playCard(p0, fourOfSpades, p0Info);
-    playCard(p1, eightOfSpades, p1Info);
-    playCard(p2, tenOfSpades, p2Info);
-    playCard(p3, aOfSpades, p3Info);
+    playCard(jules, fourOfSpades, julesInfo);
+    playCard(joe, eightOfSpades, joeInfo);
+    playCard(jim, tenOfSpades, jimInfo);
+    playCard(jess, aOfSpades, jessInfo);
 
-    p3Info.round.cardsTaken.push(
+    jessInfo.round.cardsTaken.push(
       fourOfSpades,
       eightOfSpades,
       tenOfSpades,
@@ -620,38 +629,43 @@ describe('Hearts game', () => {
 
     expect(game.gameInfo).toStrictEqual(expectedGameInfo);
 
-    expect(p0.hasSuit(clubs)).toBe(false);
-    expect(p0.hasSuit(spades)).toBe(false);
+    expect(jules.hasSuit(clubs)).toBe(false);
+    expect(jules.hasSuit(spades)).toBe(false);
 
-    playCard(p3, sevenOfClubs, p3Info);
-    playCard(p0, tenOfHearts, p0Info);
-    playCard(p1, fourOfClubs, p1Info);
-    playCard(p2, fiveOfClubs, p2Info);
+    playCard(jess, sevenOfClubs, jessInfo);
+    playCard(jules, tenOfHearts, julesInfo);
+    playCard(joe, fourOfClubs, joeInfo);
+    playCard(jim, fiveOfClubs, jimInfo);
 
-    p3Info.round.cardsTaken.push(
+    jessInfo.round.cardsTaken.push(
       sevenOfClubs,
       tenOfHearts,
       fourOfClubs,
       fiveOfClubs
     );
-    p3Info.round.points += 1;
+    jessInfo.round.points += 1;
 
     expectedGameInfo.round.heartsBroken = true;
     expect(game.gameInfo).toStrictEqual(expectedGameInfo);
 
-    playCard(p3, aOfHearts, p3Info);
+    playCard(jess, aOfHearts, jessInfo);
     expect(() => {
-      p0.playCard(twoOfDiamonds);
+      jules.playCard(twoOfDiamonds);
     }).toThrow(/Playing Error: Must Follow Suit/);
-    playCard(p0, nineOfHearts, p0Info);
-    playCard(p1, qOfHearts, p1Info);
-    playCard(p2, jOfHearts, p2Info);
+    playCard(jules, nineOfHearts, julesInfo);
+    playCard(joe, qOfHearts, joeInfo);
+    playCard(jim, jOfHearts, jimInfo);
 
-    p3Info.round.cardsTaken.push(aOfHearts, nineOfHearts, qOfHearts, jOfHearts);
-    p3Info.round.points += 4;
+    jessInfo.round.cardsTaken.push(
+      aOfHearts,
+      nineOfHearts,
+      qOfHearts,
+      jOfHearts
+    );
+    jessInfo.round.points += 4;
 
     expect(game.gameInfo).toStrictEqual(expectedGameInfo);
-    expect([...p3.hand].sort(sortHeartsHand)).toStrictEqual([
+    expect([...jess.hand].sort(sortHeartsHand)).toStrictEqual([
       eightOfClubs,
       qOfClubs,
       kOfClubs,
@@ -661,123 +675,123 @@ describe('Hearts game', () => {
       fiveOfDiamonds,
     ]);
 
-    playCard(p3, fiveOfDiamonds, p3Info);
-    playCard(p0, sixOfDiamonds, p0Info);
-    playCard(p1, fourOfHearts, p1Info);
+    playCard(jess, fiveOfDiamonds, jessInfo);
+    playCard(jules, sixOfDiamonds, julesInfo);
+    playCard(joe, fourOfHearts, joeInfo);
     expect(() => {
-      p2.playCard(kOfHearts);
+      jim.playCard(kOfHearts);
     }).toThrow(/Playing Error: Must Follow Suit/);
-    playCard(p2, threeOfDiamonds, p2Info);
+    playCard(jim, threeOfDiamonds, jimInfo);
 
-    p0Info.round.cardsTaken.push(
+    julesInfo.round.cardsTaken.push(
       fiveOfDiamonds,
       sixOfDiamonds,
       fourOfHearts,
       threeOfDiamonds
     );
-    p0Info.round.points += 1;
+    julesInfo.round.points += 1;
 
     expectedGameInfo.round.positionToLead = 0;
     expectedGameInfo.round.positionToPlay = 0;
 
     expect(game.gameInfo).toStrictEqual(expectedGameInfo);
 
-    playCard(p0, twoOfDiamonds, p0Info);
-    playCard(p1, kOfSpades, p1Info);
-    playCard(p2, kOfHearts, p2Info);
-    playCard(p3, qOfSpades, p3Info);
+    playCard(jules, twoOfDiamonds, julesInfo);
+    playCard(joe, kOfSpades, joeInfo);
+    playCard(jim, kOfHearts, jimInfo);
+    playCard(jess, qOfSpades, jessInfo);
 
-    p0Info.round.cardsTaken.push(
+    julesInfo.round.cardsTaken.push(
       twoOfDiamonds,
       kOfSpades,
       kOfHearts,
       qOfSpades
     );
-    p0Info.round.points += 14;
+    julesInfo.round.points += 14;
 
     expect(game.gameInfo).toStrictEqual(expectedGameInfo);
 
-    playCard(p0, fourOfDiamonds, p0Info);
-    playCard(p1, jOfClubs, p1Info);
-    playCard(p2, tenOfClubs, p2Info);
-    playCard(p3, jOfSpades, p3Info);
+    playCard(jules, fourOfDiamonds, julesInfo);
+    playCard(joe, jOfClubs, joeInfo);
+    playCard(jim, tenOfClubs, jimInfo);
+    playCard(jess, jOfSpades, jessInfo);
 
-    p0Info.round.cardsTaken.push(
+    julesInfo.round.cardsTaken.push(
       fourOfDiamonds,
       jOfClubs,
       tenOfClubs,
       jOfSpades
     );
 
-    expect(p0.hasOnlyHearts()).toBe(true);
+    expect(jules.hasOnlyHearts()).toBe(true);
 
-    playCard(p0, threeOfHearts, p0Info);
-    playCard(p1, nineOfClubs, p1Info);
-    playCard(p2, twoOfHearts, p2Info);
-    playCard(p3, nineOfSpades, p3Info);
+    playCard(jules, threeOfHearts, julesInfo);
+    playCard(joe, nineOfClubs, joeInfo);
+    playCard(jim, twoOfHearts, jimInfo);
+    playCard(jess, nineOfSpades, jessInfo);
 
-    p0Info.round.cardsTaken.push(
+    julesInfo.round.cardsTaken.push(
       threeOfHearts,
       nineOfClubs,
       twoOfHearts,
       nineOfSpades
     );
-    p0Info.round.points += 2;
+    julesInfo.round.points += 2;
 
     expect(game.gameInfo).toStrictEqual(expectedGameInfo);
 
-    playCard(p0, fiveOfHearts, p0Info);
-    playCard(p1, threeOfClubs, p1Info);
-    playCard(p2, sevenOfHearts, p2Info);
-    playCard(p3, kOfClubs, p3Info);
+    playCard(jules, fiveOfHearts, julesInfo);
+    playCard(joe, threeOfClubs, joeInfo);
+    playCard(jim, sevenOfHearts, jimInfo);
+    playCard(jess, kOfClubs, jessInfo);
 
-    p2Info.round.cardsTaken.push(
+    jimInfo.round.cardsTaken.push(
       fiveOfHearts,
       threeOfClubs,
       sevenOfHearts,
       kOfClubs
     );
-    p2Info.round.points += 2;
+    jimInfo.round.points += 2;
     expectedGameInfo.round.positionToLead = 2;
     expectedGameInfo.round.positionToPlay = 2;
 
     expect(game.gameInfo).toStrictEqual(expectedGameInfo);
 
-    playCard(p2, threeOfSpades, p2Info);
-    playCard(p3, qOfClubs, p3Info);
-    playCard(p0, eightOfHearts, p0Info);
-    playCard(p1, sixOfSpades, p1Info);
+    playCard(jim, threeOfSpades, jimInfo);
+    playCard(jess, qOfClubs, jessInfo);
+    playCard(jules, eightOfHearts, julesInfo);
+    playCard(joe, sixOfSpades, joeInfo);
 
-    p1Info.round.cardsTaken.push(
+    joeInfo.round.cardsTaken.push(
       threeOfSpades,
       qOfClubs,
       eightOfHearts,
       sixOfSpades
     );
-    p1Info.round.points += 1;
+    joeInfo.round.points += 1;
     expectedGameInfo.round.positionToLead = 1;
     expectedGameInfo.round.positionToPlay = 1;
 
     expect(game.gameInfo).toStrictEqual(expectedGameInfo);
 
-    playCard(p1, fiveOfSpades, p1Info);
-    playCard(p2, twoOfSpades, p2Info);
-    playCard(p3, eightOfClubs, p3Info);
-    playCard(p0, sixOfHearts, p0Info);
+    playCard(joe, fiveOfSpades, joeInfo);
+    playCard(jim, twoOfSpades, jimInfo);
+    playCard(jess, eightOfClubs, jessInfo);
+    playCard(jules, sixOfHearts, julesInfo);
 
-    p1Info.round.cardsTaken.push(
+    joeInfo.round.cardsTaken.push(
       fiveOfSpades,
       twoOfSpades,
       eightOfClubs,
       sixOfHearts
     );
-    p1Info.round.points += 1;
+    joeInfo.round.points += 1;
 
     expectedGameInfo.round.positionToPlay = 0;
-    p0Info.score = [17];
-    p1Info.score = [2];
-    p2Info.score = [2];
-    p3Info.score = [5];
+    julesInfo.score = [17];
+    joeInfo.score = [2];
+    jimInfo.score = [2];
+    jessInfo.score = [5];
 
     expectedGameInfo.gamePhase = HeartsGamePhase.DEAL;
 
@@ -795,25 +809,25 @@ describe('Hearts game', () => {
       firstTrick: true,
     };
 
-    p0Info.round = {
+    julesInfo.round = {
       hasPassed: false,
       points: 0,
       cardsTaken: [],
       cardsPlayed: [],
     };
-    p1Info.round = {
+    joeInfo.round = {
       hasPassed: false,
       points: 0,
       cardsTaken: [],
       cardsPlayed: [],
     };
-    p2Info.round = {
+    jimInfo.round = {
       hasPassed: false,
       points: 0,
       cardsTaken: [],
       cardsPlayed: [],
     };
-    p3Info.round = {
+    jessInfo.round = {
       hasPassed: false,
       points: 0,
       cardsTaken: [],
@@ -821,7 +835,7 @@ describe('Hearts game', () => {
     };
 
     expect(game.gameInfo).toStrictEqual(expectedGameInfo);
-    expect([...p0.hand].sort(sortHeartsHand)).toStrictEqual([
+    expect([...jules.hand].sort(sortHeartsHand)).toStrictEqual([
       fourOfClubs,
       qOfClubs,
       kOfClubs,
@@ -836,7 +850,7 @@ describe('Hearts game', () => {
       qOfDiamonds,
       qOfHearts,
     ]);
-    expect([...p1.hand].sort(sortHeartsHand)).toStrictEqual([
+    expect([...joe.hand].sort(sortHeartsHand)).toStrictEqual([
       fiveOfClubs,
       jOfClubs,
       aOfClubs,
@@ -851,7 +865,7 @@ describe('Hearts game', () => {
       jOfHearts,
       kOfHearts,
     ]);
-    expect([...p2.hand].sort(sortHeartsHand)).toStrictEqual([
+    expect([...jim.hand].sort(sortHeartsHand)).toStrictEqual([
       sixOfClubs,
       eightOfClubs,
       tenOfClubs,
@@ -866,7 +880,7 @@ describe('Hearts game', () => {
       tenOfHearts,
       aOfHearts,
     ]);
-    expect([...p3.hand].sort(sortHeartsHand)).toStrictEqual([
+    expect([...jess.hand].sort(sortHeartsHand)).toStrictEqual([
       twoOfClubs,
       threeOfClubs,
       sevenOfClubs,
@@ -882,127 +896,127 @@ describe('Hearts game', () => {
       sevenOfHearts,
     ]);
 
-    p3.passCards([aOfSpades, tenOfDiamonds, nineOfDiamonds]);
-    p2.passCards([jOfSpades, sixOfClubs, fiveOfHearts]);
-    p1.passCards([kOfHearts, sixOfHearts, sixOfSpades]);
-    p0.passCards([qOfHearts, qOfDiamonds, kOfSpades]);
+    jess.passCards([aOfSpades, tenOfDiamonds, nineOfDiamonds]);
+    jim.passCards([jOfSpades, sixOfClubs, fiveOfHearts]);
+    joe.passCards([kOfHearts, sixOfHearts, sixOfSpades]);
+    jules.passCards([qOfHearts, qOfDiamonds, kOfSpades]);
 
-    expect(game.getPlayerData(p0).round.cardsPassed).toStrictEqual([
+    expect(game.getPlayerData(jules).round.cardsPassed).toStrictEqual([
       qOfHearts,
       qOfDiamonds,
       kOfSpades,
     ]);
-    expect(game.getPlayerData(p1).round.cardsPassed).toStrictEqual([
+    expect(game.getPlayerData(joe).round.cardsPassed).toStrictEqual([
       kOfHearts,
       sixOfHearts,
       sixOfSpades,
     ]);
-    expect(game.getPlayerData(p2).round.cardsPassed).toStrictEqual([
+    expect(game.getPlayerData(jim).round.cardsPassed).toStrictEqual([
       jOfSpades,
       sixOfClubs,
       fiveOfHearts,
     ]);
-    expect(game.getPlayerData(p3).round.cardsPassed).toStrictEqual([
+    expect(game.getPlayerData(jess).round.cardsPassed).toStrictEqual([
       aOfSpades,
       tenOfDiamonds,
       nineOfDiamonds,
     ]);
-    expect(game.getPlayerData(p0).round.cardsReceived).toStrictEqual([
+    expect(game.getPlayerData(jules).round.cardsReceived).toStrictEqual([
       kOfHearts,
       sixOfHearts,
       sixOfSpades,
     ]);
-    expect(game.getPlayerData(p1).round.cardsReceived).toStrictEqual([
+    expect(game.getPlayerData(joe).round.cardsReceived).toStrictEqual([
       jOfSpades,
       sixOfClubs,
       fiveOfHearts,
     ]);
-    expect(game.getPlayerData(p2).round.cardsReceived).toStrictEqual([
+    expect(game.getPlayerData(jim).round.cardsReceived).toStrictEqual([
       aOfSpades,
       tenOfDiamonds,
       nineOfDiamonds,
     ]);
-    expect(game.getPlayerData(p3).round.cardsReceived).toStrictEqual([
+    expect(game.getPlayerData(jess).round.cardsReceived).toStrictEqual([
       qOfHearts,
       qOfDiamonds,
       kOfSpades,
     ]);
 
-    p3.playCard(twoOfClubs);
-    p0.playCard(kOfClubs);
-    p1.playCard(aOfClubs);
-    p2.playCard(eightOfClubs);
+    jess.playCard(twoOfClubs);
+    jules.playCard(kOfClubs);
+    joe.playCard(aOfClubs);
+    jim.playCard(eightOfClubs);
 
-    p1.playCard(jOfClubs);
-    p2.playCard(tenOfClubs);
-    p3.playCard(nineOfClubs);
-    p0.playCard(qOfClubs);
+    joe.playCard(jOfClubs);
+    jim.playCard(tenOfClubs);
+    jess.playCard(nineOfClubs);
+    jules.playCard(qOfClubs);
 
-    p0.playCard(tenOfSpades);
-    p1.playCard(qOfSpades);
-    p2.playCard(aOfSpades);
-    p3.playCard(kOfSpades);
+    jules.playCard(tenOfSpades);
+    joe.playCard(qOfSpades);
+    jim.playCard(aOfSpades);
+    jess.playCard(kOfSpades);
 
     expect(game.gameInfo.players[2].round.points).toBe(13);
     expect(game.gameInfo.round.heartsBroken).toBe(false);
 
     expect(() => {
-      p2.playCard(aOfHearts);
+      jim.playCard(aOfHearts);
     }).toThrow(/Playing Error: Hearts has not been broken/);
 
-    p2.playCard(aOfDiamonds);
-    p3.playCard(qOfDiamonds);
-    p0.playCard(eightOfDiamonds);
-    p1.playCard(fourOfDiamonds);
+    jim.playCard(aOfDiamonds);
+    jess.playCard(qOfDiamonds);
+    jules.playCard(eightOfDiamonds);
+    joe.playCard(fourOfDiamonds);
 
-    p2.playCard(kOfDiamonds);
-    p3.playCard(fiveOfDiamonds);
-    p0.playCard(fourOfClubs);
-    p1.playCard(twoOfDiamonds);
+    jim.playCard(kOfDiamonds);
+    jess.playCard(fiveOfDiamonds);
+    jules.playCard(fourOfClubs);
+    joe.playCard(twoOfDiamonds);
 
-    p2.playCard(jOfDiamonds);
-    p3.playCard(threeOfDiamonds);
-    p0.playCard(kOfHearts);
-    p1.playCard(sixOfDiamonds);
+    jim.playCard(jOfDiamonds);
+    jess.playCard(threeOfDiamonds);
+    jules.playCard(kOfHearts);
+    joe.playCard(sixOfDiamonds);
 
     expect(game.gameInfo.round.heartsBroken).toBe(true);
 
-    p2.playCard(aOfHearts);
-    p3.playCard(qOfHearts);
-    p0.playCard(sixOfHearts);
-    p1.playCard(jOfHearts);
+    jim.playCard(aOfHearts);
+    jess.playCard(qOfHearts);
+    jules.playCard(sixOfHearts);
+    joe.playCard(jOfHearts);
 
-    p2.playCard(tenOfHearts);
-    p3.playCard(sevenOfHearts);
-    p0.playCard(eightOfSpades);
-    p1.playCard(fiveOfHearts);
+    jim.playCard(tenOfHearts);
+    jess.playCard(sevenOfHearts);
+    jules.playCard(eightOfSpades);
+    joe.playCard(fiveOfHearts);
 
-    p2.playCard(nineOfHearts);
-    p3.playCard(fourOfHearts);
-    p0.playCard(sevenOfSpades);
-    p1.playCard(twoOfHearts);
+    jim.playCard(nineOfHearts);
+    jess.playCard(fourOfHearts);
+    jules.playCard(sevenOfSpades);
+    joe.playCard(twoOfHearts);
 
-    p2.playCard(eightOfHearts);
-    p3.playCard(threeOfHearts);
-    p0.playCard(sixOfSpades);
-    p1.playCard(jOfSpades);
+    jim.playCard(eightOfHearts);
+    jess.playCard(threeOfHearts);
+    jules.playCard(sixOfSpades);
+    joe.playCard(jOfSpades);
 
     expect(game.gameInfo.players[2].round.points).toBe(26);
 
-    p2.playCard(tenOfDiamonds);
-    p3.playCard(twoOfSpades);
-    p0.playCard(fiveOfSpades);
-    p1.playCard(nineOfSpades);
+    jim.playCard(tenOfDiamonds);
+    jess.playCard(twoOfSpades);
+    jules.playCard(fiveOfSpades);
+    joe.playCard(nineOfSpades);
 
-    p2.playCard(nineOfDiamonds);
-    p3.playCard(sevenOfClubs);
-    p0.playCard(fourOfSpades);
-    p1.playCard(sixOfClubs);
+    jim.playCard(nineOfDiamonds);
+    jess.playCard(sevenOfClubs);
+    jules.playCard(fourOfSpades);
+    joe.playCard(sixOfClubs);
 
-    p2.playCard(sevenOfDiamonds);
-    p3.playCard(threeOfClubs);
-    p0.playCard(threeOfSpades);
-    p1.playCard(fiveOfClubs);
+    jim.playCard(sevenOfDiamonds);
+    jess.playCard(threeOfClubs);
+    jules.playCard(threeOfSpades);
+    joe.playCard(fiveOfClubs);
 
     expect(game.gameInfo.gamePhase).toBe(HeartsGamePhase.DEAL);
 
@@ -1021,7 +1035,7 @@ describe('Hearts game', () => {
     game.startNewRound();
     expect(game.gameInfo.passDirection).toBe(HeartsPassDirection.ACROSS);
     expect(
-      [...p0.hand].sort(sortHeartsHand).map(a => a.description)
+      [...jules.hand].sort(sortHeartsHand).map(a => a.description)
     ).toStrictEqual([
       '5 of clubs',
       '6 of clubs',
@@ -1038,7 +1052,7 @@ describe('Hearts game', () => {
       'K of hearts',
     ]);
     expect(
-      [...p1.hand].sort(sortHeartsHand).map(a => a.description)
+      [...joe.hand].sort(sortHeartsHand).map(a => a.description)
     ).toStrictEqual([
       '2 of clubs',
       '6 of spades',
@@ -1055,7 +1069,7 @@ describe('Hearts game', () => {
       'Q of hearts',
     ]);
     expect(
-      [...p2.hand].sort(sortHeartsHand).map(a => a.description)
+      [...jim.hand].sort(sortHeartsHand).map(a => a.description)
     ).toStrictEqual([
       '4 of clubs',
       '8 of clubs',
@@ -1072,7 +1086,7 @@ describe('Hearts game', () => {
       'A of hearts',
     ]);
     expect(
-      [...p3.hand].sort(sortHeartsHand).map(a => a.description)
+      [...jess.hand].sort(sortHeartsHand).map(a => a.description)
     ).toStrictEqual([
       '3 of clubs',
       '9 of clubs',
@@ -1089,102 +1103,102 @@ describe('Hearts game', () => {
       '6 of hearts',
     ]);
 
-    p0.passCards([kOfHearts, sevenOfClubs, sixOfClubs]);
-    p2.passCards([aOfHearts, tenOfHearts, eightOfHearts]);
-    p1.passCards([sixOfDiamonds, fourOfHearts, sixOfSpades]);
-    p3.passCards([aOfSpades, threeOfDiamonds, sixOfHearts]);
-    expect(game.getPlayerData(p0).round.cardsReceived).toStrictEqual([
+    jules.passCards([kOfHearts, sevenOfClubs, sixOfClubs]);
+    jim.passCards([aOfHearts, tenOfHearts, eightOfHearts]);
+    joe.passCards([sixOfDiamonds, fourOfHearts, sixOfSpades]);
+    jess.passCards([aOfSpades, threeOfDiamonds, sixOfHearts]);
+    expect(game.getPlayerData(jules).round.cardsReceived).toStrictEqual([
       aOfHearts,
       tenOfHearts,
       eightOfHearts,
     ]);
-    expect(game.getPlayerData(p1).round.cardsReceived).toStrictEqual([
+    expect(game.getPlayerData(joe).round.cardsReceived).toStrictEqual([
       aOfSpades,
       threeOfDiamonds,
       sixOfHearts,
     ]);
-    expect(game.getPlayerData(p2).round.cardsReceived).toStrictEqual([
+    expect(game.getPlayerData(jim).round.cardsReceived).toStrictEqual([
       kOfHearts,
       sevenOfClubs,
       sixOfClubs,
     ]);
-    expect(game.getPlayerData(p3).round.cardsReceived).toStrictEqual([
+    expect(game.getPlayerData(jess).round.cardsReceived).toStrictEqual([
       sixOfDiamonds,
       fourOfHearts,
       sixOfSpades,
     ]);
 
-    p1.playCard(twoOfClubs);
-    p2.playCard(aOfClubs);
-    p3.playCard(kOfClubs);
-    p0.playCard(fiveOfClubs);
+    joe.playCard(twoOfClubs);
+    jim.playCard(aOfClubs);
+    jess.playCard(kOfClubs);
+    jules.playCard(fiveOfClubs);
 
-    p2.playCard(jOfDiamonds);
-    p3.playCard(sixOfDiamonds);
-    p0.playCard(twoOfDiamonds);
-    p1.playCard(aOfDiamonds);
+    jim.playCard(jOfDiamonds);
+    jess.playCard(sixOfDiamonds);
+    jules.playCard(twoOfDiamonds);
+    joe.playCard(aOfDiamonds);
 
-    p1.playCard(qOfDiamonds);
-    p2.playCard(sevenOfDiamonds);
-    p3.playCard(fourOfHearts);
-    p0.playCard(eightOfDiamonds);
+    joe.playCard(qOfDiamonds);
+    jim.playCard(sevenOfDiamonds);
+    jess.playCard(fourOfHearts);
+    jules.playCard(eightOfDiamonds);
 
-    p1.playCard(threeOfDiamonds);
-    p2.playCard(fiveOfDiamonds);
-    p3.playCard(threeOfHearts);
-    p0.playCard(nineOfDiamonds);
+    joe.playCard(threeOfDiamonds);
+    jim.playCard(fiveOfDiamonds);
+    jess.playCard(threeOfHearts);
+    jules.playCard(nineOfDiamonds);
 
-    p0.playCard(kOfDiamonds);
-    p1.playCard(qOfSpades);
-    p2.playCard(fourOfDiamonds);
-    p3.playCard(tenOfSpades);
+    jules.playCard(kOfDiamonds);
+    joe.playCard(qOfSpades);
+    jim.playCard(fourOfDiamonds);
+    jess.playCard(tenOfSpades);
 
-    p0.playCard(tenOfDiamonds);
-    p1.playCard(qOfHearts);
-    p2.playCard(kOfHearts);
-    p3.playCard(eightOfSpades);
+    jules.playCard(tenOfDiamonds);
+    joe.playCard(qOfHearts);
+    jim.playCard(kOfHearts);
+    jess.playCard(eightOfSpades);
 
-    p0.playCard(aOfHearts);
-    p1.playCard(jOfHearts);
-    p2.playCard(jOfSpades);
-    p3.playCard(sevenOfSpades);
+    jules.playCard(aOfHearts);
+    joe.playCard(jOfHearts);
+    jim.playCard(jOfSpades);
+    jess.playCard(sevenOfSpades);
 
-    p0.playCard(tenOfHearts);
-    p1.playCard(nineOfHearts);
-    p2.playCard(threeOfSpades);
-    p3.playCard(sixOfSpades);
+    jules.playCard(tenOfHearts);
+    joe.playCard(nineOfHearts);
+    jim.playCard(threeOfSpades);
+    jess.playCard(sixOfSpades);
 
-    p0.playCard(eightOfHearts);
-    p1.playCard(sevenOfHearts);
-    p2.playCard(jOfClubs);
-    p3.playCard(fourOfSpades);
+    jules.playCard(eightOfHearts);
+    joe.playCard(sevenOfHearts);
+    jim.playCard(jOfClubs);
+    jess.playCard(fourOfSpades);
 
-    p0.playCard(twoOfHearts);
-    p1.playCard(sixOfHearts);
-    p2.playCard(eightOfClubs);
-    p3.playCard(qOfClubs);
+    jules.playCard(twoOfHearts);
+    joe.playCard(sixOfHearts);
+    jim.playCard(eightOfClubs);
+    jess.playCard(qOfClubs);
 
-    p1.playCard(fiveOfHearts);
-    p2.playCard(sevenOfClubs);
-    p3.playCard(tenOfClubs);
-    p0.playCard(nineOfSpades);
+    joe.playCard(fiveOfHearts);
+    jim.playCard(sevenOfClubs);
+    jess.playCard(tenOfClubs);
+    jules.playCard(nineOfSpades);
 
-    p1.playCard(aOfSpades);
-    p2.playCard(sixOfClubs);
-    p3.playCard(nineOfClubs);
-    p0.playCard(fiveOfSpades);
+    joe.playCard(aOfSpades);
+    jim.playCard(sixOfClubs);
+    jess.playCard(nineOfClubs);
+    jules.playCard(fiveOfSpades);
 
-    p1.playCard(kOfSpades);
-    p2.playCard(fourOfClubs);
-    p3.playCard(threeOfClubs);
-    p0.playCard(twoOfSpades);
+    joe.playCard(kOfSpades);
+    jim.playCard(fourOfClubs);
+    jess.playCard(threeOfClubs);
+    jules.playCard(twoOfSpades);
 
     expect(game.gamePhase).toBe(HeartsGamePhase.DEAL);
-    expect(game.getPlayerData(p0).round.points).toBe(22);
-    expect(game.getPlayerData(p0).score).toStrictEqual([17, 26, 22]);
-    expect(game.getPlayerData(p1).score).toStrictEqual([2, 26, 4]);
-    expect(game.getPlayerData(p2).score).toStrictEqual([2, 0, 0]);
-    expect(game.getPlayerData(p3).score).toStrictEqual([5, 26, 0]);
+    expect(game.getPlayerData(jules).round.points).toBe(22);
+    expect(game.getPlayerData(jules).score).toStrictEqual([17, 26, 22]);
+    expect(game.getPlayerData(joe).score).toStrictEqual([2, 26, 4]);
+    expect(game.getPlayerData(jim).score).toStrictEqual([2, 0, 0]);
+    expect(game.getPlayerData(jess).score).toStrictEqual([5, 26, 0]);
   });
   test('keeper round', () => {
     game.startNewRound();
@@ -1192,7 +1206,7 @@ describe('Hearts game', () => {
     expect(game.gamePhase).toBe(HeartsGamePhase.PLAY);
 
     expect(
-      [...p0.hand].sort(sortHeartsHand).map(a => a.description)
+      [...jules.hand].sort(sortHeartsHand).map(a => a.description)
     ).toStrictEqual([
       '2 of clubs',
       '5 of clubs',
@@ -1209,7 +1223,7 @@ describe('Hearts game', () => {
       'K of hearts',
     ]);
     expect(
-      [...p1.hand].sort(sortHeartsHand).map(a => a.description)
+      [...joe.hand].sort(sortHeartsHand).map(a => a.description)
     ).toStrictEqual([
       '4 of clubs',
       '7 of clubs',
@@ -1226,7 +1240,7 @@ describe('Hearts game', () => {
       '7 of hearts',
     ]);
     expect(
-      [...p2.hand].sort(sortHeartsHand).map(a => a.description)
+      [...jim.hand].sort(sortHeartsHand).map(a => a.description)
     ).toStrictEqual([
       '3 of clubs',
       '6 of clubs',
@@ -1243,7 +1257,7 @@ describe('Hearts game', () => {
       'A of hearts',
     ]);
     expect(
-      [...p3.hand].sort(sortHeartsHand).map(a => a.description)
+      [...jess.hand].sort(sortHeartsHand).map(a => a.description)
     ).toStrictEqual([
       'K of clubs',
       '2 of spades',
@@ -1260,70 +1274,70 @@ describe('Hearts game', () => {
       'Q of hearts',
     ]);
 
-    p0.playCard(twoOfClubs);
-    p1.playCard(qOfClubs);
-    p2.playCard(aOfClubs);
-    p3.playCard(kOfClubs);
+    jules.playCard(twoOfClubs);
+    joe.playCard(qOfClubs);
+    jim.playCard(aOfClubs);
+    jess.playCard(kOfClubs);
 
-    p2.playCard(tenOfClubs);
-    p3.playCard(qOfHearts);
-    p0.playCard(eightOfClubs);
-    p1.playCard(sevenOfClubs);
+    jim.playCard(tenOfClubs);
+    jess.playCard(qOfHearts);
+    jules.playCard(eightOfClubs);
+    joe.playCard(sevenOfClubs);
 
-    p2.playCard(nineOfHearts);
-    p3.playCard(jOfHearts);
-    p0.playCard(kOfHearts);
-    p1.playCard(sevenOfHearts);
+    jim.playCard(nineOfHearts);
+    jess.playCard(jOfHearts);
+    jules.playCard(kOfHearts);
+    joe.playCard(sevenOfHearts);
 
-    p0.playCard(tenOfHearts);
-    p1.playCard(sixOfHearts);
-    p2.playCard(twoOfHearts);
-    p3.playCard(eightOfHearts);
+    jules.playCard(tenOfHearts);
+    joe.playCard(sixOfHearts);
+    jim.playCard(twoOfHearts);
+    jess.playCard(eightOfHearts);
 
-    p0.playCard(fiveOfClubs);
-    p1.playCard(fourOfClubs);
-    p2.playCard(threeOfClubs);
-    p3.playCard(fiveOfHearts);
+    jules.playCard(fiveOfClubs);
+    joe.playCard(fourOfClubs);
+    jim.playCard(threeOfClubs);
+    jess.playCard(fiveOfHearts);
 
-    p0.playCard(jOfClubs);
-    p1.playCard(qOfSpades);
-    p2.playCard(sixOfClubs);
-    p3.playCard(aOfDiamonds);
+    jules.playCard(jOfClubs);
+    joe.playCard(qOfSpades);
+    jim.playCard(sixOfClubs);
+    jess.playCard(aOfDiamonds);
 
-    p0.playCard(threeOfSpades);
-    p1.playCard(jOfSpades);
-    p2.playCard(aOfSpades);
-    p3.playCard(eightOfSpades);
+    jules.playCard(threeOfSpades);
+    joe.playCard(jOfSpades);
+    jim.playCard(aOfSpades);
+    jess.playCard(eightOfSpades);
 
-    p2.playCard(nineOfClubs);
-    p3.playCard(twoOfSpades);
-    p0.playCard(sixOfSpades);
-    p1.playCard(kOfSpades);
+    jim.playCard(nineOfClubs);
+    jess.playCard(twoOfSpades);
+    jules.playCard(sixOfSpades);
+    joe.playCard(kOfSpades);
 
-    p2.playCard(fourOfSpades);
-    p3.playCard(sevenOfSpades);
-    p0.playCard(nineOfSpades);
-    p1.playCard(fiveOfSpades);
+    jim.playCard(fourOfSpades);
+    jess.playCard(sevenOfSpades);
+    jules.playCard(nineOfSpades);
+    joe.playCard(fiveOfSpades);
 
-    p0.playCard(threeOfDiamonds);
-    p1.playCard(twoOfDiamonds);
-    p2.playCard(fiveOfDiamonds);
-    p3.playCard(sevenOfDiamonds);
+    jules.playCard(threeOfDiamonds);
+    joe.playCard(twoOfDiamonds);
+    jim.playCard(fiveOfDiamonds);
+    jess.playCard(sevenOfDiamonds);
 
-    p3.playCard(nineOfDiamonds);
-    p0.playCard(tenOfDiamonds);
-    p1.playCard(qOfDiamonds);
-    p2.playCard(kOfDiamonds);
+    jess.playCard(nineOfDiamonds);
+    jules.playCard(tenOfDiamonds);
+    joe.playCard(qOfDiamonds);
+    jim.playCard(kOfDiamonds);
 
-    p2.playCard(aOfHearts);
-    p3.playCard(threeOfHearts);
-    p0.playCard(fourOfDiamonds);
-    p1.playCard(jOfDiamonds);
+    jim.playCard(aOfHearts);
+    jess.playCard(threeOfHearts);
+    jules.playCard(fourOfDiamonds);
+    joe.playCard(jOfDiamonds);
 
-    p2.playCard(sixOfDiamonds);
-    p3.playCard(fourOfHearts);
-    p0.playCard(tenOfSpades);
-    p1.playCard(eightOfDiamonds);
+    jim.playCard(sixOfDiamonds);
+    jess.playCard(fourOfHearts);
+    jules.playCard(tenOfSpades);
+    joe.playCard(eightOfDiamonds);
 
     expect(game.gameInfo.players[0].round.points).toBe(22);
     expect(game.gameInfo.players[1].round.points).toBe(1);
@@ -1334,7 +1348,7 @@ describe('Hearts game', () => {
     game.startNewRound();
 
     expect(
-      [...p0.hand].sort(sortHeartsHand).map(a => a.description)
+      [...jules.hand].sort(sortHeartsHand).map(a => a.description)
     ).toStrictEqual([
       '3 of clubs',
       '6 of clubs',
@@ -1351,7 +1365,7 @@ describe('Hearts game', () => {
       '10 of hearts',
     ]);
     expect(
-      [...p1.hand].sort(sortHeartsHand).map(a => a.description)
+      [...joe.hand].sort(sortHeartsHand).map(a => a.description)
     ).toStrictEqual([
       '4 of clubs',
       '7 of clubs',
@@ -1368,7 +1382,7 @@ describe('Hearts game', () => {
       'K of hearts',
     ]);
     expect(
-      [...p2.hand].sort(sortHeartsHand).map(a => a.description)
+      [...jim.hand].sort(sortHeartsHand).map(a => a.description)
     ).toStrictEqual([
       '2 of clubs',
       '9 of clubs',
@@ -1385,7 +1399,7 @@ describe('Hearts game', () => {
       '7 of hearts',
     ]);
     expect(
-      [...p3.hand].sort(sortHeartsHand).map(a => a.description)
+      [...jess.hand].sort(sortHeartsHand).map(a => a.description)
     ).toStrictEqual([
       '5 of clubs',
       'K of clubs',
@@ -1405,78 +1419,78 @@ describe('Hearts game', () => {
     expect(game.gameInfo.gamePhase).toBe(HeartsGamePhase.PASS);
     expect(game.gameInfo.passDirection).toBe(HeartsPassDirection.LEFT);
 
-    p3.passCards([aOfHearts, aOfClubs, kOfClubs]);
-    p0.passCards([fourOfHearts, eightOfHearts, tenOfHearts]);
-    p1.passCards([aOfSpades, jOfSpades, nineOfSpades]);
-    p2.passCards([twoOfDiamonds, nineOfClubs, fourOfDiamonds]);
+    jess.passCards([aOfHearts, aOfClubs, kOfClubs]);
+    jules.passCards([fourOfHearts, eightOfHearts, tenOfHearts]);
+    joe.passCards([aOfSpades, jOfSpades, nineOfSpades]);
+    jim.passCards([twoOfDiamonds, nineOfClubs, fourOfDiamonds]);
 
-    p2.playCard(twoOfClubs);
-    p3.playCard(nineOfClubs);
-    p0.playCard(threeOfClubs);
-    p1.playCard(qOfClubs);
+    jim.playCard(twoOfClubs);
+    jess.playCard(nineOfClubs);
+    jules.playCard(threeOfClubs);
+    joe.playCard(qOfClubs);
 
-    p1.playCard(jOfClubs);
-    p2.playCard(sevenOfHearts);
-    p3.playCard(fiveOfClubs);
-    p0.playCard(eightOfClubs);
+    joe.playCard(jOfClubs);
+    jim.playCard(sevenOfHearts);
+    jess.playCard(fiveOfClubs);
+    jules.playCard(eightOfClubs);
 
-    p1.playCard(tenOfClubs);
-    p2.playCard(sixOfHearts);
-    p3.playCard(kOfSpades);
-    p0.playCard(kOfClubs);
+    joe.playCard(tenOfClubs);
+    jim.playCard(sixOfHearts);
+    jess.playCard(kOfSpades);
+    jules.playCard(kOfClubs);
 
-    p0.playCard(aOfHearts);
-    p1.playCard(kOfHearts);
-    p2.playCard(fiveOfHearts);
-    p3.playCard(qOfHearts);
+    jules.playCard(aOfHearts);
+    joe.playCard(kOfHearts);
+    jim.playCard(fiveOfHearts);
+    jess.playCard(qOfHearts);
 
-    p0.playCard(aOfClubs);
-    p1.playCard(sevenOfClubs);
-    p2.playCard(qOfSpades);
-    p3.playCard(twoOfSpades);
+    jules.playCard(aOfClubs);
+    joe.playCard(sevenOfClubs);
+    jim.playCard(qOfSpades);
+    jess.playCard(twoOfSpades);
 
-    p0.playCard(sixOfClubs);
-    p1.playCard(fourOfClubs);
-    p2.playCard(threeOfSpades);
-    p3.playCard(twoOfDiamonds);
+    jules.playCard(sixOfClubs);
+    joe.playCard(fourOfClubs);
+    jim.playCard(threeOfSpades);
+    jess.playCard(twoOfDiamonds);
 
-    p0.playCard(fiveOfSpades);
-    p1.playCard(fourOfSpades);
-    p2.playCard(sixOfSpades);
-    p3.playCard(threeOfDiamonds);
+    jules.playCard(fiveOfSpades);
+    joe.playCard(fourOfSpades);
+    jim.playCard(sixOfSpades);
+    jess.playCard(threeOfDiamonds);
 
-    p2.playCard(nineOfSpades);
-    p3.playCard(fourOfDiamonds);
-    p0.playCard(sevenOfSpades);
-    p1.playCard(jOfDiamonds);
+    jim.playCard(nineOfSpades);
+    jess.playCard(fourOfDiamonds);
+    jules.playCard(sevenOfSpades);
+    joe.playCard(jOfDiamonds);
 
-    p2.playCard(tenOfSpades);
-    p3.playCard(sixOfDiamonds);
-    p0.playCard(eightOfSpades);
-    p1.playCard(aOfDiamonds);
+    jim.playCard(tenOfSpades);
+    jess.playCard(sixOfDiamonds);
+    jules.playCard(eightOfSpades);
+    joe.playCard(aOfDiamonds);
 
-    p2.playCard(jOfSpades);
-    p3.playCard(sevenOfDiamonds);
-    p0.playCard(fiveOfDiamonds);
-    p1.playCard(fourOfHearts);
+    jim.playCard(jOfSpades);
+    jess.playCard(sevenOfDiamonds);
+    jules.playCard(fiveOfDiamonds);
+    joe.playCard(fourOfHearts);
 
-    p2.playCard(aOfSpades);
-    p3.playCard(tenOfDiamonds);
-    p0.playCard(eightOfDiamonds);
-    p1.playCard(eightOfHearts);
+    jim.playCard(aOfSpades);
+    jess.playCard(tenOfDiamonds);
+    jules.playCard(eightOfDiamonds);
+    joe.playCard(eightOfHearts);
 
-    p2.playCard(twoOfHearts);
-    p3.playCard(nineOfHearts);
-    p0.playCard(nineOfDiamonds);
-    p1.playCard(tenOfHearts);
+    jim.playCard(twoOfHearts);
+    jess.playCard(nineOfHearts);
+    jules.playCard(nineOfDiamonds);
+    joe.playCard(tenOfHearts);
 
-    p1.playCard(jOfHearts);
-    p2.playCard(threeOfHearts);
-    p3.playCard(kOfDiamonds);
-    p0.playCard(qOfDiamonds);
+    joe.playCard(jOfHearts);
+    jim.playCard(threeOfHearts);
+    jess.playCard(kOfDiamonds);
+    jules.playCard(qOfDiamonds);
 
     expect(game.gameInfo.gameState).toBe(GameState.FINISHED);
-    printHands();
+    // printHands();
   });
 });
 
@@ -1521,12 +1535,12 @@ function sortHeartsHand(a: Card, b: Card): number {
   return 0;
 }
 
-function printHands() {
-  console.log('----- HANDS ----');
-  for (const p in testPlayers) {
-    console.log(`${p} :`);
-    console.log(
-      [...testPlayers[p].hand].sort(sortHeartsHand).map(a => a.description)
-    );
-  }
-}
+// function printHands() {
+//   console.log('----- HANDS ----');
+//   for (const p in testPlayers) {
+//     console.log(`${p} :`);
+//     console.log(
+//       [...testPlayers[p].hand].sort(sortHeartsHand).map(a => a.description)
+//     );
+//   }
+// }

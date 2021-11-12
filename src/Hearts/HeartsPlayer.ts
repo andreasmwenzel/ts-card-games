@@ -11,8 +11,12 @@ export class HeartsPlayer extends Player {
     return this.hand?.length;
   }
 
-  constructor({name, id}: PlayerParams) {
-    super({name, id});
+  constructor({name, id}: PlayerParams, game: Hearts) {
+    super({name, id}, game);
+  }
+
+  public setGame(game: Hearts | undefined) {
+    this._game = game;
   }
 
   public playCard(card: Card) {

@@ -12,7 +12,7 @@ import {
 } from 'ts-cards';
 import {v4 as uuidv4} from 'uuid';
 import {HeartsParams} from '.';
-import {CardGame} from '..';
+import {CardGame, PlayerParams} from '..';
 import {CardGameTrick} from '../mechanics/CardGameTrick';
 import {GameState} from '../types';
 import {HeartsPlayer} from './HeartsPlayer';
@@ -29,6 +29,24 @@ import {nextPassDirection} from './utils';
 export class Hearts extends CardGame {
   protected gameData: HeartsGameData;
   private currentTrick: CardGameTrick<HeartsPlayerData> | null = null;
+
+  public addPlayer({name, id}: PlayerParams, pos = -1): HeartsPlayer {
+    const player = new HeartsPlayer({name, id}, this);
+    this.addPlayerToGame(player, pos);
+    const playerData = this.findPlayerData(this.gameData.players, player);
+    playerData.score = [];
+    playerData.round = {
+      hasPassed: false,
+      cardsDealt: [],
+      cardsPassed: [],
+      cardsReceived: [],
+      cardsPlayed: [],
+      cardsTaken: [],
+      points: 0,
+    };
+
+    return player;
+  }
 
   constructor({id, name, data}: HeartsParams) {
     super({id, name, data});
@@ -125,22 +143,6 @@ export class Hearts extends CardGame {
       p.score = [];
     }
     this.startNewRound();
-  }
-
-  public addPlayer(player: HeartsPlayer, position = -1): number {
-    const pos = super.addPlayer(player, position);
-    const playerData = this.findPlayerData(this.gameData.players, player);
-    playerData.score = [];
-    playerData.round = {
-      hasPassed: false,
-      cardsDealt: [],
-      cardsPassed: [],
-      cardsReceived: [],
-      cardsPlayed: [],
-      cardsTaken: [],
-      points: 0,
-    };
-    return pos;
   }
 
   public playCard(player: HeartsPlayer, card: Card) {

@@ -1,6 +1,6 @@
+import {PlayerParams} from '..';
 import {CardGame} from '../CardGame';
 // import {Card, pinochleCardCompare} from 'ts-cards';
-import {Player} from '../Player';
 import {CardGameInfo, PlayerData} from '../types';
 import {PinochlePlayer} from './PinochlePlayer';
 import {PinochleParams} from './types';
@@ -17,14 +17,10 @@ export class Pinochle extends CardGame {
     return this.gameInfo;
   }
 
-  public addPlayer(player: Player, position: number): number {
-    if (player instanceof PinochlePlayer) {
-      return super.addPlayer(player, position);
-    } else {
-      throw new Error(
-        'Join Game Error: Only Pinochle Players can join Pinochle games'
-      );
-    }
+  public addPlayer({name, id}: PlayerParams, pos = -1): PinochlePlayer {
+    const p = new PinochlePlayer({name, id}, this);
+    this.addPlayerToGame(p, pos);
+    return p;
   }
 
   protected playerCount = 4;

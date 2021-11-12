@@ -1,195 +1,107 @@
 //"use strict";
-import {Hearts, HeartsPlayer} from '..';
-import {GameState, PlayerInfo} from '../types';
+import {Deck} from 'ts-cards';
+import {validate} from 'uuid';
+import {
+  Hearts,
+  HeartsGameData,
+  HeartsGamePhase,
+  HeartsPassDirection,
+  HeartsPlayer,
+} from '..';
+import {GameState} from '../types';
 
-let game: Hearts;
-const p0 = new HeartsPlayer({name: 'joe', id: '0'});
-const p1 = new HeartsPlayer({name: 'jim', id: '1'});
-const p2 = new HeartsPlayer({name: 'jessica', id: '2'});
-const p3 = new HeartsPlayer({name: 'julie', id: '3'});
-
-const p0Info: PlayerInfo = {
-  name: p0.name,
-  position: -1,
-  isReady: false,
-  leftTable: false,
-};
-const p1Info: PlayerInfo = {
-  name: p1.name,
-  position: -1,
-  isReady: false,
-  leftTable: false,
-};
-const p2Info: PlayerInfo = {
-  name: p2.name,
-  position: -1,
-  isReady: false,
-  leftTable: false,
-};
-const p3Info: PlayerInfo = {
-  name: p3.name,
-  position: -1,
-  isReady: false,
-  leftTable: false,
-};
-
-const playersInfo: PlayerInfo[] = [p0Info, p1Info, p2Info, p3Info]; //track info by player number
-let expectedPlayers: PlayerInfo[] = []; //track info by what table should expect
+const game = new Hearts({name: 'Hearts1'});
+let joe: HeartsPlayer;
+let jim: HeartsPlayer;
+let jess: HeartsPlayer;
+let jules: HeartsPlayer;
+const dummyPlayer = new HeartsPlayer({name: 'dummy'}, game);
 
 describe('Game Setup', () => {
-  game = new Hearts({name: 'Hearts1'});
   test('game info', () => {
     expect(game).toHaveProperty('name', 'Hearts1');
     expect(game.maxPlayers).toEqual(4);
     expect(game.gameState).toEqual(GameState.WAITING_FOR_PLAYERS);
-    expect(game.players).toEqual([]);
+    expect(game.playersInfo).toEqual([]);
+    expect(validate(game.id)).toBe(true);
   });
 
   test('player functions', () => {
     expect(() => {
-      game.playerHand(p1);
+      game.playerHand(dummyPlayer);
     }).toThrow(/Find Player Error/);
     expect(() => {
-      game.isPlayerReady(p1);
+      game.isPlayerReady(dummyPlayer);
     }).toThrow(/Find Player Error/);
   });
 });
 
 describe('Before game fills up', () => {
   test('Add players to open seat', () => {
-    game.addPlayer(p0, 1);
-    p0Info.position = 1;
-    expectedPlayers.push(p0Info);
+    joe = game.addPlayer({name: 'jim'}, 1);
 
-    expect(game.players).toEqual(expectedPlayers);
-    expect(game.playerHand(p0)).toEqual([]);
-    expect(game.isPlayerReady(p0)).toEqual(false);
+    expect(game.playerHand(joe)).toEqual([]);
+    expect(game.isPlayerReady(joe)).toEqual(false);
 
-    game.addPlayer(p1, 2);
-    p1Info.position = 2;
-    expectedPlayers.push(p1Info);
-    expect(game.players).toEqual(expectedPlayers);
+    jim = game.addPlayer({name: 'jim'}, 2);
+    expect(game.playersInfo).toHaveLength(2);
   });
 
   test('Add player to first available seat', () => {
-    const x = game.addPlayer(p2);
-    expect(x).toEqual(0);
-
-    p2Info.position = 0; //position 0 should be the first available seat
-    expectedPlayers.push(p2Info);
-    expect(game.players).toEqual(expectedPlayers);
-  });
-
-  test('add player to the game twice', () => {
-    expect(() => {
-      game.addPlayer(p1);
-    }).toThrow(/is already in this game/);
+    jess = game.addPlayer({name: 'jess'});
+    expect(jess.position).toEqual(0);
   });
 
   test('add players to occupied seat', () => {
     expect(() => {
-      game.addPlayer(p3, 0);
-    }).toThrowError(/already at position/);
-    expect(() => {
-      game.isPlayerReady(p3);
-    }).toThrow(/Find Player Error: player/);
+      game.addPlayer({name: 'fails'}, 0);
+    }).toThrowError(/Join Error:/);
   });
 
   test('add player to invalid seat', () => {
     expect(() => {
-      game.addPlayer(p3, 4);
+      game.addPlayer({name: 'fails'}, 4);
     }).toThrowError(/Join Error: Table has integer positions/);
     expect(() => {
-      game.addPlayer(p3, -3);
+      game.addPlayer({name: 'fails'}, -3);
     }).toThrowError(/Join Error: Table has integer positions/);
     expect(() => {
-      game.addPlayer(p3, 1.4);
+      game.addPlayer({name: 'fails'}, 1.4);
     }).toThrowError(/Join Error: Table has integer positions/);
-  });
-
-  test('move position errors', () => {
-    expect(() => {
-      game.movePosition(p3, 1);
-    }).toThrowError(/is not in game/);
-    //to an occupied seat
-    expect(() => {
-      game.movePosition(p2, 1);
-    }).toThrow(/is already at position /);
-    expect(() => {
-      game.movePosition(p2, -3);
-    }).toThrow(/Table has integer positions/);
-  });
-
-  test('move to open seat', () => {
-    game.movePosition(p2, p2Info.position);
-    expect(game.players).toEqual(expectedPlayers);
-
-    game.movePosition(p2, 3);
-    p2Info.position = 3;
-    expect(game.players).toEqual(expectedPlayers);
-    expect(game.playerPosition(p2)).toEqual(3);
-
-    //test nobody in the seat we're trading to - should run same as above
-    game.movePosition(p2, 0, true);
-    p2Info.position = 0;
-    expect(game.players).toEqual(expectedPlayers);
-  });
-
-  test('switching seats', () => {
-    game.movePosition(p2, 1, true); // player at position 1 -> p2s position, p2->position 1
-    p0Info.position = playersInfo[2].position; //p0 is at position 1
-    p2Info.position = 1;
-    expect(game.players).toEqual(expectedPlayers);
-    expect(game.playerPosition(p2)).toEqual(1);
-    expect(game.playerPosition(p0)).toEqual(0);
   });
 
   test('players ready', () => {
-    expect(game.isPlayerReady(p0)).toBe(false);
+    expect(game.isPlayerReady(joe)).toBe(false);
+    game.playerReady(joe, true);
+    expect(game.isPlayerReady(joe)).toBe(true);
 
-    game.playerReady(p0, true);
-    p0Info.isReady = true;
-    expect(game.gameState).toEqual(GameState.WAITING_FOR_PLAYERS);
-    expect(game.players).toEqual(expectedPlayers);
-
-    game.playerReady(p1, true);
-    p1Info.isReady = true;
-    expect(game.gameState).toEqual(GameState.WAITING_FOR_PLAYERS);
-
-    game.playerReady(p2, true);
-    p2Info.isReady = true;
+    game.playerReady(jim, true);
+    game.playerReady(jess, true);
     expect(game.gameState).toEqual(GameState.WAITING_FOR_PLAYERS);
   });
 
   test('player no longer ready', () => {
-    game.playerReady(p0, false);
-    p0Info.isReady = false;
+    game.playerReady(joe, false);
+    expect(game.isPlayerReady(joe)).toBe(false);
     expect(game.gameState).toEqual(GameState.WAITING_FOR_PLAYERS);
-    expect(game.players).toEqual(expectedPlayers);
   });
 
   test('remove players', () => {
-    game.removePlayer(p0);
-    expectedPlayers = expectedPlayers.filter(p => p.name !== p0.name);
-    p0Info.isReady = false;
-
-    expect(game.players).toEqual(expectedPlayers);
+    game.removePlayer(joe);
+    expect(game.playersInfo.length).toBe(2);
+    expect(joe.gameId).toBe(undefined);
+    expect(joe.hand).toStrictEqual([]);
   });
 
   test('game fills up', () => {
-    game.addPlayer(p0, p0Info.position);
-    expectedPlayers.push(p0Info);
-
-    p3Info.position = game.addPlayer(p3);
-    expectedPlayers.push(p3Info);
-
-    expect(game.players).toEqual(expectedPlayers);
+    joe = game.addPlayer({name: 'joe'});
+    jules = game.addPlayer({name: 'jules'});
     expect(game.gameState).toBe(GameState.WAITING_FOR_START);
 
-    expect(game.playerPosition(p1)).toBe(2);
-    expect(game.playerPosition(p2)).toBe(1);
-    expect(game.playerPosition(p0)).toBe(0);
-    expect(game.playerPosition(p3)).toBe(3);
+    expect(game.playerPosition(jim)).toBe(2);
+    expect(game.playerPosition(jess)).toBe(0);
+    expect(game.playerPosition(joe)).toBe(1);
+    expect(game.playerPosition(jules)).toBe(3);
   });
 });
 describe('Game is full but not started', () => {
@@ -199,100 +111,31 @@ describe('Game is full but not started', () => {
     expect(game.gameState).toEqual(GameState.WAITING_FOR_START);
   });
   test('player functions', () => {
-    expect(game.isPlayerReady(p1)).toEqual(p1Info.isReady);
-    expect(game.playerHand(p1)).toEqual([]);
+    expect(game.playerHand(jim)).toEqual([]);
   });
   test('add player', () => {
-    const p5 = new HeartsPlayer({name: 'june'});
     expect(() => {
-      game.addPlayer(p5);
+      game.addPlayer({name: 'fails'});
     }).toThrow(/Join Error: Game is full/);
     expect(() => {
-      game.addPlayer(p5, 0);
+      game.addPlayer({name: 'fails'}, 0);
     }).toThrow(/Join Error: Game is full/);
-  });
-
-  test('move positions', () => {
-    // to an occupied seat
-    expect(() => {
-      game.movePosition(p2, 0);
-    }).toThrow(/is already at position /);
-
-    //to invalid seat
-    expect(() => {
-      game.movePosition(p2, -1);
-    }).toThrow(/Table has integer positions/);
-
-    //switching positions
-    game.movePosition(p3, 0, true);
-    p0Info.position = p3Info.position;
-    p3Info.position = 0;
-    expect(game.players).toEqual(expectedPlayers);
-
-    //to own seat
-    game.movePosition(p2, 1);
-    expect(game.players).toEqual(expectedPlayers);
-
-    //to own seat while "switching"
-    game.movePosition(p2, 1, true);
-    expect(game.players).toEqual(expectedPlayers);
-  });
-
-  test('players ready', () => {
-    game.playerReady(p0, false);
-    p0Info.isReady = false;
-
-    game.playerReady(p1, true);
-    p1Info.isReady = true;
-
-    game.playerReady(p2, true);
-    p2Info.isReady = true;
-
-    game.playerReady(p3, true);
-    p3Info.isReady = true;
-
-    expect(game.players).toEqual(expectedPlayers);
   });
 
   test('remove player', () => {
-    game.removePlayer(p1);
-    expectedPlayers = expectedPlayers.filter(pl => pl.name !== p1.name);
-
-    p1Info.isReady = false;
-
-    expect(game.players).toEqual(expectedPlayers);
+    game.removePlayer(jim);
     expect(game.gameState).toEqual(GameState.WAITING_FOR_PLAYERS);
   });
 
   test('game starts', () => {
-    game.addPlayer(p1);
-    expectedPlayers.push(p1Info);
-
+    jim = game.addPlayer({name: 'jim'});
     expect(game.gameState).toEqual(GameState.WAITING_FOR_START);
 
-    game.playerReady(p1, true);
-    p1Info.isReady = true;
+    game.playerReady(jim, true);
+    game.playerReady(jules, true);
+    game.playerReady(joe, true);
 
-    expect(game.players).toEqual(expectedPlayers);
-
-    game.playerReady(p0, true);
-
-    //player ready flag is reset
-    p0Info.isReady = false;
-    p1Info.isReady = false;
-    p2Info.isReady = false;
-    p3Info.isReady = false;
-
-    //players get sorted by position
-    expectedPlayers.sort((a, b) => a.position - b.position);
-
-    expect(game.players).toEqual(expectedPlayers);
     expect(game.gameState).toEqual(GameState.ACTIVE);
-
-    expect(game.playerPosition(p3)).toEqual(0);
-    expect(game.playerPosition(p2)).toEqual(1);
-    expect(game.playerPosition(p1)).toEqual(2);
-    expect(game.playerPosition(p0)).toEqual(3);
   });
 });
 describe('Active game', () => {
@@ -304,32 +147,18 @@ describe('Active game', () => {
 
   test('add player', () => {
     expect(() => {
-      const p5 = new HeartsPlayer({name: 'june', id: '5'});
-      game.addPlayer(p5);
+      game.addPlayer({name: 'fails'});
     }).toThrow(/Game is full/);
   });
 
-  test('move positions', () => {
-    expect(() => {
-      game.movePosition(p1, 1);
-    }).toThrow(/Game has started/);
-  });
-
   test('player functions', () => {
-    expect(game.isPlayerReady(p1)).toEqual(p1Info.isReady);
-  });
-
-  test('player ready while active', () => {
-    expect(() => {
-      game.playerReady(p1, true);
-    }).toThrow(/Game is active/);
+    expect(game.isPlayerReady(jim)).toEqual(true);
   });
 
   test('player leaves', () => {
-    game.removePlayer(p2);
-    p2Info.leftTable = true;
-    expect(game.gameState).toEqual(GameState.PLAYER_MISSING);
-    expect(game.players).toEqual(expectedPlayers);
+    game.playerLeave(jess);
+    expect(game.gameState).toEqual(GameState.WAITING_FOR_RESTART);
+    expect(jess.ready).toBe(false);
   });
 });
 
@@ -337,100 +166,64 @@ describe('when a player has left', () => {
   test('game info', () => {
     expect(game).toHaveProperty('name', 'Hearts1');
     expect(game.maxPlayers).toEqual(4);
-    expect(game.gameState).toEqual(GameState.PLAYER_MISSING);
-  });
-
-  test('a player not at table tries to join', () => {
-    expect(() => {
-      const p5 = new HeartsPlayer({name: 'june', id: '5'});
-      game.addPlayer(p5);
-    }).toThrow(/Game is full/);
-  });
-
-  test('move positions', () => {
-    expect(() => {
-      game.movePosition(p1, 1);
-    }).toThrow(/Game has started/);
-  });
-
-  test('players ready', () => {
-    game.playerReady(p1, true);
-    p1Info.isReady = true;
-    game.playerReady(p3, true);
-    p3Info.isReady = true;
-
-    expect(game.players).toEqual(expectedPlayers);
+    expect(game.gameState).toEqual(GameState.WAITING_FOR_RESTART);
   });
 
   test('player who left readies', () => {
-    expect(() => {
-      game.playerReady(p2, true);
-    }).toThrow(/Player has left the table/);
-  });
-
-  test('player functions', () => {
-    expect(game.isPlayerReady(p1)).toEqual(p1Info.isReady);
+    game.playerReady(jess, true);
+    expect(jess.ready).toBe(false);
   });
 
   test('another player leaves', () => {
-    game.removePlayer(p1);
-    p1Info.leftTable = true;
-    p1Info.isReady = false;
-    expect(game.players).toEqual(expectedPlayers);
+    game.playerLeave(jim);
+    expect(jim.ready).toBe(false);
   });
 
   test('players rejoins', () => {
-    game.addPlayer(p1);
-    p1Info.leftTable = false;
-    game.addPlayer(p2);
-    p2Info.leftTable = false;
-    expect(game.players).toEqual(expectedPlayers);
     expect(game.gameState).toEqual(GameState.WAITING_FOR_RESTART);
-  });
-});
-
-describe('after players rejoin', () => {
-  test('game info', () => {
-    expect(game).toHaveProperty('name', 'Hearts1');
-    expect(game.maxPlayers).toEqual(4);
-    expect(game.gameState).toEqual(GameState.WAITING_FOR_RESTART);
-  });
-
-  test('add player', () => {
-    const p5 = new HeartsPlayer({name: 'june', id: '5'});
-    expect(() => {
-      game.addPlayer(p5);
-    }).toThrow(/Join Error: Game is full/);
-  });
-
-  test('all players ready again', () => {
-    game.playerReady(p0, true);
-    p0Info.isReady = true;
-    game.playerReady(p1, true);
-    p1Info.isReady = true;
-    game.playerReady(p2, true);
-    p2Info.isReady = true;
-
+    game.playerRejoin(jess);
+    game.playerRejoin(jim);
+    game.playerReady(jim, true);
+    game.playerReady(jess, true);
     expect(game.gameState).toEqual(GameState.ACTIVE);
+
+    game.playerReady(jim, false);
+    expect(jim.ready).toBe(true);
+
+    console.log(game.gameInfo);
   });
 });
 
-describe('all players leave', () => {
+describe('remove player', () => {
   test('all players leave', () => {
-    game.removePlayer(p0);
-    game.removePlayer(p1);
-    game.removePlayer(p2);
-    game.removePlayer(p3);
+    game.removePlayer(joe);
     expect(game.gameState).toEqual(GameState.FINISHED);
   });
-  test('player joing in finished game', () => {
-    expect(() => {
-      game.addPlayer(p1);
-    }).toThrow(/Game has finished/);
-  });
-  test('player ready in finished game', () => {
-    expect(() => {
-      game.playerReady(p1, true);
-    }).toThrow(/Game has finished/);
-  });
+});
+
+describe('game from data', () => {
+  const data: HeartsGameData = {
+    players: [],
+    id: '1',
+    name: 'game',
+    rules: {
+      queenBreaksHearts: true,
+      passingCount: 3,
+      playTo: 100,
+      players: 1,
+    },
+    gameState: GameState.WAITING_FOR_PLAYERS,
+    gamePhase: HeartsGamePhase.DEAL,
+    deck: new Deck(),
+    dealer: 0,
+    passDirection: HeartsPassDirection.LEFT,
+    round: {
+      positionToLead: 0,
+      positionToPlay: 0,
+      firstTrick: true,
+      heartsBroken: false,
+    },
+  };
+  const game = new Hearts({data: data});
+  expect(game.id).toBe(data.id);
 });

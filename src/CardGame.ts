@@ -9,6 +9,7 @@ import {
   PlayerInfo,
   CardGameParams,
 } from './types';
+import {PlayerParams} from '.';
 
 export abstract class CardGame {
   protected gameData: CardGameData;
@@ -43,7 +44,7 @@ export abstract class CardGame {
     return this.gameData.name;
   }
 
-  public get players(): ReadonlyArray<PlayerInfo> {
+  public get playersInfo(): ReadonlyArray<PlayerInfo> {
     const players: Array<PlayerInfo> = [];
     for (const p of this.gameData.players) {
       const player: PlayerInfo = {
@@ -71,18 +72,13 @@ export abstract class CardGame {
   public isPlayerReady(player: Player): boolean {
     return this.findPlayerData(this.gameData.players, player).isReady;
   }
-
+  public abstract addPlayer({name, id}: PlayerParams): Player;
   //Player and Game interactions
-  public addPlayer(player: Player, position = -1): number {
-    if (this.gameData.gameState === GameState.FINISHED) {
-      throw new Error('Join Error: Game has finished');
-    }
-    if (
-      !(
-        this.gameData.gameState === GameState.WAITING_FOR_PLAYERS ||
-        this.gameData.gameState === GameState.PLAYER_MISSING
-      )
-    ) {
+  protected addPlayerToGame<T extends Player>(
+    player: T,
+    position = -1
+  ): PlayerData {
+    if (this.gameState !== GameState.WAITING_FOR_PLAYERS) {
       throw new Error('Join Error: Game is full');
     }
     if (
@@ -96,30 +92,12 @@ export abstract class CardGame {
         } or use -1 to find open seat`
       );
     }
-    if (this.gameState === GameState.PLAYER_MISSING) {
-      let p: PlayerData;
-      try {
-        p = this.findPlayerData(this.gameData.players, player);
-      } catch {
-        throw new Error('Join Error: Game is full');
-      }
-      p.leftTable = false;
-      if (this.allPlayersRejoined()) {
-        this.gameData.gameState = GameState.WAITING_FOR_RESTART;
-      }
-      return p.position;
-    }
 
     let pos: number = position;
     if (position === -1) {
       //find the first available position
       const positions: number[] = [];
       for (const p of this.gameData.players) {
-        if (p.player === player) {
-          throw new Error(
-            `Join Error: Player ${player.name} is already in this game`
-          );
-        }
         positions.push(p.position);
       }
       positions.sort();
@@ -130,12 +108,8 @@ export abstract class CardGame {
         }
       }
     } else {
-      for (const p of this.gameData.players) {
-        if (p.position === position) {
-          throw new Error(
-            `Join Error: ${p.player.name} is already at position ${position}`
-          );
-        }
+      if (this.playerAtPosition(this.gameData.players, pos)) {
+        throw new Error('Join Error: Position is occupied');
       }
     }
 
@@ -152,123 +126,65 @@ export abstract class CardGame {
       this.gameData.gameState = GameState.WAITING_FOR_START;
     }
 
-    return pos;
-  }
-  public movePosition(
-    player: Player,
-    position: number,
-    tradePositions = false
-  ) {
-    if (
-      !Number.isInteger(position) ||
-      position >= this.gameData.rules.players ||
-      position < 0
-    ) {
-      throw new Error(
-        `Move Position Error: Table has integer positions 0 through ${
-          this.gameData.rules.players - 1
-        }`
-      );
-    }
-    if (
-      !(
-        this.gameState === GameState.WAITING_FOR_PLAYERS ||
-        this.gameState === GameState.WAITING_FOR_START
-      )
-    ) {
-      throw new Error('Move Position Error: Game has started');
-    }
-    const p = this.findPlayerData(this.gameData.players, player);
-    if (p.position === position) {
-      //move player to position (s)he's already in: nothing changes
-      return;
-    }
-
-    //find person in position to move to
-    const tradingPlayerData = this.gameData.players.find(
-      pd => pd.position === position
-    );
-    if (tradingPlayerData === undefined) {
-      //no player at that position
-      p.position = position;
-    } else {
-      if (tradePositions) {
-        tradingPlayerData.position = p.position;
-        p.position = position;
-      } else {
-        throw new Error(
-          `Move Position Error: player ${p.player.name} is already at position ${position}`
-        );
-      }
-    }
+    return newPlayerData;
   }
 
   public playerReady(player: Player, ready: boolean): void {
-    if (this.gameState === GameState.ACTIVE) {
-      throw new Error('Player Ready Error: Game is active');
-    }
-    if (this.gameState === GameState.FINISHED) {
-      throw new Error('Player Ready Error: Game has finished');
-    }
-    const playerData = this.findPlayerData(this.gameData.players, player);
-    if (playerData.leftTable) {
-      throw new Error('Player Ready Error: Player has left the table');
-    }
-    playerData.isReady = ready;
     if (
-      this.gameData.gameState === GameState.WAITING_FOR_START ||
-      this.gameData.gameState === GameState.WAITING_FOR_RESTART
-    ) {
-      if (this.allPlayersReady()) {
-        for (const p of this.gameData.players) {
-          //reset ready flags
-          p.isReady = false;
-        }
-        if (this.gameData.gameState === GameState.WAITING_FOR_START) {
-          this.gameData.players.sort((a, b) =>
-            a.position > b.position ? 1 : -1
-          );
-          this.startGame();
-        }
-        this.gameData.gameState = GameState.ACTIVE;
+      this.gameState === GameState.ACTIVE ||
+      this.gameState === GameState.FINISHED
+    )
+      return;
+
+    const playerData = this.findPlayerData(this.gameData.players, player);
+    if (playerData.leftTable) return;
+
+    playerData.isReady = ready;
+    if (this.gameState === GameState.WAITING_FOR_PLAYERS) return;
+
+    if (this.allPlayersReady()) {
+      if (this.gameData.gameState === GameState.WAITING_FOR_START) {
+        this.gameData.players.sort((a, b) =>
+          a.position > b.position ? 1 : -1
+        );
+        this.startGame();
       }
+      this.gameData.gameState = GameState.ACTIVE;
     }
   }
   public removePlayer(player: Player): number {
-    switch (this.gameData.gameState) {
-      case GameState.WAITING_FOR_RESTART:
-      case GameState.ACTIVE:
-        this.gameData.gameState = GameState.PLAYER_MISSING;
-        this.setPlayerLeft(player);
+    this.gameData.players = this.gameData.players.filter(
+      pd => pd.player !== player
+    );
+    player.setGame(undefined);
+
+    switch (this.gameState) {
+      case GameState.WAITING_FOR_PLAYERS:
         break;
-      case GameState.PLAYER_MISSING: {
-        this.setPlayerLeft(player);
-        if (this.allPlayersLeft()) {
-          this.gameData.gameState = GameState.FINISHED;
-        }
-        break;
-      }
-      case GameState.WAITING_FOR_START:
+      case GameState.WAITING_FOR_START: {
         this.gameData.gameState = GameState.WAITING_FOR_PLAYERS;
-        this.gameData.players = this.gameData.players.filter(
-          pd => pd.player !== player
-        );
         break;
-      case GameState.WAITING_FOR_PLAYERS: {
-        this.gameData.players = this.gameData.players.filter(
-          pd => pd.player !== player
-        );
       }
+      default:
+        this.gameData.gameState = GameState.FINISHED;
     }
     return this.gameData.players.length;
   }
-  private setPlayerLeft(player: Player) {
+  public playerLeave(player: Player) {
     const leavingPlayerData = this.findPlayerData(
       this.gameData.players,
       player
     );
     leavingPlayerData.leftTable = true;
     leavingPlayerData.isReady = false;
+
+    if (this.gameState === GameState.ACTIVE)
+      this.gameData.gameState = GameState.WAITING_FOR_RESTART;
+  }
+
+  public playerRejoin(player: Player) {
+    const pData = this.findPlayerData(this.gameData.players, player);
+    pData.leftTable = false;
   }
 
   protected findPlayerData<T extends PlayerData>(data: T[], player: Player): T {
@@ -281,26 +197,16 @@ export abstract class CardGame {
     return playerData;
   }
 
+  protected playerAtPosition<T extends PlayerData>(
+    data: T[],
+    position: number
+  ): T | undefined {
+    return data.find(p => p.position === position);
+  }
   //All Players Ready and All Players Left checks
   private allPlayersReady(): boolean {
     for (const p of this.gameData.players) {
       if (!p.isReady) {
-        return false;
-      }
-    }
-    return true;
-  }
-  private allPlayersRejoined(): boolean {
-    for (const p of this.gameData.players) {
-      if (p.leftTable) {
-        return false;
-      }
-    }
-    return true;
-  }
-  private allPlayersLeft(): boolean {
-    for (const p of this.gameData.players) {
-      if (!p.leftTable) {
         return false;
       }
     }
