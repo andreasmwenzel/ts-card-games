@@ -35,6 +35,6 @@ export abstract class Player {
   }
 
   public leaveGame() {
-    this._game?.removePlayer(this);
+    this._game?.playerLeave(this);
   }
 }
