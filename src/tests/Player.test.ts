@@ -41,7 +41,7 @@ describe('Player and Game interactions', () => {
 
   test('player leave', () => {
     player.leaveGame();
-    expect(player.gameId).toBe(undefined);
-    expect(player.hand).toStrictEqual([]);
+    expect(player.gameId).toBe(game.id);
+    expect(player.ready).toBe(false);
   });
 });
